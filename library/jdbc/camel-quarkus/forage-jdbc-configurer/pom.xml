@@ -13,11 +13,11 @@
     <name>Camel Forage :: Library :: JDBC :: Spring Boot :: Jdbc Quarkus Configurer</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.camel.forage</groupId>
-            <artifactId>forage-jdbc</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel.forage</groupId>-->
+<!--            <artifactId>forage-jdbc</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
 <!--            <artifactId>spring-boot-starter-jdbc</artifactId>-->
@@ -28,10 +28,16 @@
             <artifactId>forage-core-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.camel.forage</groupId>-->
+<!--            <artifactId>forage-jdbc-factories</artifactId>-->
+<!--            <version>${project.version}</version>-->
+<!--        </dependency>-->
+
         <dependency>
-            <groupId>org.apache.camel.forage</groupId>
-            <artifactId>forage-jdbc-factories</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-integration-tests-support-splunk</artifactId>
+            <version></version>
         </dependency>
 
         <dependency>

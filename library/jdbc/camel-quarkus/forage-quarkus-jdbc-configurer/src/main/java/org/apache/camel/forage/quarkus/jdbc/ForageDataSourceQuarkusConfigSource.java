@@ -32,12 +32,26 @@ public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
         // if provider datasource class differs form postgresql, ignore it (this means thar the multi ds for another
         // db-type is present)
 
+        String property = "quarkus.datasource.";
+
         // todo
-        configuration.put(String.format("quarkus.%s.db-kind", prefix), "postgresql");
-        configuration.put(String.format("quarkus.%s.password", prefix), config.password());
-        configuration.put(String.format("quarkus.%s.username", prefix), config.username());
-        configuration.put(String.format("quarkus.%s.jdbc.url", prefix), config.jdbcUrl());
-        configuration.put(String.format("quarkus.%s.jdbc.max-size", prefix), config.maxSize() + "");
+        if (prefix != null && !prefix.isEmpty()) {
+            property = property + "\"" + prefix + "\".";
+        }
+
+        configuration.put(property + "db-kind", config.dbKind());
+        configuration.put(property + "password", config.password());
+        configuration.put(property + "username", config.username());
+        configuration.put(property + "url", config.jdbcUrl());
+        configuration.put(property + "max-size", config.maxSize() + "");
+
+        //    static {
+        //        configuration.put("quarkus.datasource.db-kind", "postgresql");
+        //        configuration.put("quarkus.datasource.pas sword", "test");
+        //        configuration.put("quarkus.datasource.username", "test");
+        //        configuration.put("quarkus.datasource.jdbc.url", "jdbc:postgresql://localhost:5432/postgresql");
+        //        configuration.put("quarkus.datasource.jdbc.max-size", "16");
+        //    }
     }
 
     /**

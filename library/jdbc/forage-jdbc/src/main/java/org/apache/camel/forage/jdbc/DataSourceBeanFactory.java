@@ -2,11 +2,13 @@ package org.apache.camel.forage.jdbc;
 
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.camel.CamelContext;
 import org.apache.camel.forage.core.common.BeanFactory;
 import org.apache.camel.forage.core.common.ServiceLoaderHelper;
 import org.apache.camel.forage.core.jdbc.DataSourceProvider;
+import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +16,16 @@ public class DataSourceBeanFactory implements BeanFactory {
     private final Logger LOG = LoggerFactory.getLogger(DataSourceBeanFactory.class);
 
     private CamelContext camelContext;
-    private final MultiDataSourceConfig config = new MultiDataSourceConfig();
     private static final String DEFAULT_DATASOURCE = "dataSource";
 
     @Override
     public void configure() {
-        if (config != null
-                && config.multiDataSourceNames() != null
-                && !config.multiDataSourceNames().isEmpty()) {
-            for (String name : config.multiDataSourceNames()) {
+
+        DataSourceFactoryConfig config = new DataSourceFactoryConfig();
+        Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, "(.+).jdbc\\..*");
+
+        if (!prefixes.isEmpty()) {
+            for (String name : prefixes) {
                 if (camelContext.getRegistry().lookupByNameAndType(name, DataSource.class) == null) {
                     DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
                     DataSource agroalDataSource = newDataSource(dsFactoryConfig, name);

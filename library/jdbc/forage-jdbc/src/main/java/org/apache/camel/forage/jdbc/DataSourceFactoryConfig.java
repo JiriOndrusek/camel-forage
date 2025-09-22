@@ -43,6 +43,12 @@ public class DataSourceFactoryConfig implements Config {
     }
 
     // Database connection methods
+    public String dbKind() {
+        return ConfigStore.getInstance()
+                .get(DataSourceFactoryConfigEntries.DB_KIND.asNamed(prefix))
+                .orElseThrow(() -> new MissingConfigException("Db kind is required but not configured"));
+    }
+
     public String jdbcUrl() {
         return ConfigStore.getInstance()
                 .get(DataSourceFactoryConfigEntries.JDBC_URL.asNamed(prefix))

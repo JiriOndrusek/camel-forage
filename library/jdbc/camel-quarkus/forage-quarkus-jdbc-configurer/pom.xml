@@ -10,8 +10,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>forage-quarkus-jdbc-postgres-configurer</artifactId>
-    <name>Camel Forage :: Library :: JDBC :: Spring Boot :: Jdbc Quarkus Configurer</name>
+    <artifactId>forage-quarkus-jdbc-configurer</artifactId>
+    <name>Camel Forage :: Library :: JDBC :: Jdbc Quarkus Configurer</name>
 
     <dependencies>
 

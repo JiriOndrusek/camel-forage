@@ -3,8 +3,8 @@ package org.apache.camel.forage.quarkus.jdbc;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.DataSourceFactoryConfig;
-import org.apache.camel.forage.jdbc.MultiDataSourceConfig;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
 public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
@@ -15,29 +15,29 @@ public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
         // there is no need to check. whether property already exists, because the priority solves it
 
         // try loading multiDatasource properties
-        MultiDataSourceConfig multiDataSourceConfig = new MultiDataSourceConfig();
-        if (multiDataSourceConfig.multiDataSourceNames() != null
-                && !multiDataSourceConfig.multiDataSourceNames().isEmpty()) {
-            for (String name : multiDataSourceConfig.multiDataSourceNames()) {
+        DataSourceFactoryConfig config = new DataSourceFactoryConfig();
+        Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, "(.+).jdbc\\..*");
+
+        if (!prefixes.isEmpty()) {
+            for (String name : prefixes) {
                 DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
                 configureDs(name, dsFactoryConfig);
             }
         } else {
-            DataSourceFactoryConfig dataSourceFactoryConfig = new DataSourceFactoryConfig();
-            configureDs("datasource", dataSourceFactoryConfig);
+            configureDs("datasource", config);
         }
     }
 
     private static void configureDs(String prefix, DataSourceFactoryConfig config) {
-        //if provider datasource class differs form postgresql, ignore it (this means thar the multi ds for another
+        // if provider datasource class differs form postgresql, ignore it (this means thar the multi ds for another
         // db-type is present)
 
-
-        configuration.put("quarkus.datasource.db-kind", "postgresql");
-        configuration.put("quarkus.datasource.password", config.password());
-        configuration.put("quarkus.datasource.username", config.username());
-        configuration.put("quarkus.datasource.jdbc.url", config.jdbcUrl());
-        configuration.put("quarkus.datasource.jdbc.max-size", config.maxSize() + "");
+        // todo
+        configuration.put(String.format("quarkus.%s.db-kind", prefix), "postgresql");
+        configuration.put(String.format("quarkus.%s.password", prefix), config.password());
+        configuration.put(String.format("quarkus.%s.username", prefix), config.username());
+        configuration.put(String.format("quarkus.%s.jdbc.url", prefix), config.jdbcUrl());
+        configuration.put(String.format("quarkus.%s.jdbc.max-size", prefix), config.maxSize() + "");
     }
 
     /**

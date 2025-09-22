@@ -26,7 +26,7 @@
     </dependencyManagement>
 
     <modules>
-        <module>forage-quarkus-jdbc-postgres-configurer</module>
+        <module>forage-quarkus-jdbc-configurer</module>
     </modules>
 
 </project>

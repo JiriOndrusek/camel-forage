@@ -24,7 +24,7 @@ public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
                 configureDs(name, dsFactoryConfig);
             }
         } else {
-            configureDs("datasource", config);
+            configureDs(null, config);
         }
     }
 
@@ -42,8 +42,8 @@ public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
         configuration.put(property + "db-kind", config.dbKind());
         configuration.put(property + "password", config.password());
         configuration.put(property + "username", config.username());
-        configuration.put(property + "url", config.jdbcUrl());
-        configuration.put(property + "max-size", config.maxSize() + "");
+        configuration.put(property + "jdbc.url", config.jdbcUrl());
+        configuration.put(property + "jdbc.max-size", config.maxSize() + "");
 
         //    static {
         //        configuration.put("quarkus.datasource.db-kind", "postgresql");

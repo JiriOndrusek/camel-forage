@@ -16,9 +16,11 @@
  */
 package org.apache.camel.forage.plugin;
 
+import java.util.Optional;
 import org.apache.camel.dsl.jbang.core.commands.CamelJBangMain;
 import org.apache.camel.dsl.jbang.core.common.CamelJBangPlugin;
 import org.apache.camel.dsl.jbang.core.common.Plugin;
+import org.apache.camel.dsl.jbang.core.common.PluginExporter;
 import picocli.CommandLine;
 
 @CamelJBangPlugin(name = "camel-jbang-plugin-forage", firstVersion = "4.15.0")
@@ -26,8 +28,13 @@ public class ForagePlugin implements Plugin {
 
     @Override
     public void customize(CommandLine commandLine, CamelJBangMain main) {
-        var cmd = new CommandLine(new ForageCommand(main));
+        var cmd = new CommandLine(new Help(main));
 
-        commandLine.addSubcommand("forage", cmd);
+        commandLine.addSubcommand("forage", new CommandLine(new Help(main)).addSubcommand("export", new Export(main)));
+    }
+
+    @Override
+    public Optional<PluginExporter> getExporter() {
+        return Plugin.super.getExporter();
     }
 }

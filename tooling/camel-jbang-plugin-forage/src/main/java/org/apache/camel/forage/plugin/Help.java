@@ -21,16 +21,17 @@ import org.apache.camel.dsl.jbang.core.commands.CamelJBangMain;
 import picocli.CommandLine;
 
 @CommandLine.Command(name = "forage", description = "Camel Forage commands (use --help to see sub commands)")
-public class ForageCommand extends CamelCommand {
+public class Help extends CamelCommand {
 
-    public ForageCommand(CamelJBangMain main) {
+    public Help(CamelJBangMain main) {
+
         super(main);
     }
 
     @Override
     public Integer doCall() throws Exception {
-        //        new CommandLine(this).execute("--help");
-        printer().println("Hello from Camel Forage!");
+        new CommandLine(this).execute("--help");
+        //        printer().println("Hello from Camel Forage!");
         return 0;
     }
 }

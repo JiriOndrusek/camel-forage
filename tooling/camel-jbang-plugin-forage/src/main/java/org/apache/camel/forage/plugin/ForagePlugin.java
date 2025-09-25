@@ -16,11 +16,18 @@
  */
 package org.apache.camel.forage.plugin;
 
+import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.camel.dsl.jbang.core.commands.CamelJBangMain;
+import org.apache.camel.dsl.jbang.core.commands.Export;
+import org.apache.camel.dsl.jbang.core.commands.Run;
 import org.apache.camel.dsl.jbang.core.common.CamelJBangPlugin;
 import org.apache.camel.dsl.jbang.core.common.Plugin;
 import org.apache.camel.dsl.jbang.core.common.PluginExporter;
+import org.apache.camel.dsl.jbang.core.common.Printer;
+import org.apache.camel.dsl.jbang.core.common.RuntimeType;
+import org.apache.camel.forage.jdbc.common.DatasourceExportCustomizer;
 import picocli.CommandLine;
 
 @CamelJBangPlugin(name = "camel-jbang-plugin-forage", firstVersion = "4.15.0")
@@ -28,13 +35,23 @@ public class ForagePlugin implements Plugin {
 
     @Override
     public void customize(CommandLine commandLine, CamelJBangMain main) {
-        var cmd = new CommandLine(new Help(main));
-
-        commandLine.addSubcommand("forage", new CommandLine(new Help(main)).addSubcommand("export", new Export(main)));
+        commandLine.addSubcommand(
+                "forage",
+                new CommandLine(new Help(main))
+                        .addSubcommand("export", new Export(main))
+                        .addSubcommand("run", new Run(main)));
     }
 
     @Override
-    public Optional<PluginExporter> getExporter() {
-        return Plugin.super.getExporter();
+    public Optional<org.apache.camel.dsl.jbang.core.common.PluginExporter> getExporter() {
+        return Optional.of(new PluginExporter() {
+            @Override
+            public Set<String> getDependencies(RuntimeType runtimeType) {
+                return new DatasourceExportCustomizer().resolveRuntimeDependencies(runtimeType);
+            }
+
+            @Override
+            public void addSourceFiles(Path buildDir, String packageName, Printer printer) throws Exception {}
+        });
     }
 }

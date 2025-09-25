@@ -23,6 +23,10 @@
             <artifactId>forage-core-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jbang-core</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.agroal</groupId>

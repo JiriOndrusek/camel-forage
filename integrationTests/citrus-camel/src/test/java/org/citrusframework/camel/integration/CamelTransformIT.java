@@ -1,0 +1,74 @@
+/*
+ * Copyright the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.citrusframework.camel.integration;
+
+import org.apache.camel.CamelContext;
+import org.citrusframework.TestActionSupport;
+import org.citrusframework.annotations.CitrusTest;
+import org.citrusframework.camel.dsl.CamelSupport;
+import org.citrusframework.message.MessageType;
+import org.citrusframework.testng.spring.TestNGCitrusSpringSupport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.Test;
+
+import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.seda;
+
+public class CamelTransformIT extends TestNGCitrusSpringSupport implements TestActionSupport {
+
+    @Autowired
+    private CamelContext camelContext;
+
+    private final CamelSupport camel = new CamelSupport();
+
+    @Test
+    @CitrusTest
+    public void shouldTransformMessageSent() {
+        when(send(camel.endpoint(seda("hello")::getRawUri))
+                .message()
+                .body("{\"message\": \"Citrus rocks!\"}")
+                .transform(
+                    camel
+                        .camelContext(camelContext)
+                        .transform()
+                        .jsonpath("$.message"))
+        );
+
+        then(receive(camel.endpoint(seda("hello")::getRawUri))
+                .message()
+                .type(MessageType.PLAINTEXT)
+                .body("Citrus rocks!"));
+    }
+
+    @Test
+    @CitrusTest
+    public void shouldTransformMessageReceived() {
+        when(send(camel.endpoint(seda("hello")::getRawUri))
+                .message()
+                .body("{\"message\": \"Citrus rocks!\"}")
+        );
+
+        then(receive(camel.endpoint(seda("hello")::getRawUri))
+                .transform(
+                    camel
+                        .camelContext(camelContext)
+                        .transform()
+                        .jsonpath("$.message"))
+                .message()
+                .type(MessageType.PLAINTEXT)
+                .body("Citrus rocks!"));
+    }
+}

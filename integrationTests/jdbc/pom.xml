@@ -120,16 +120,22 @@
             <version>4.0.4</version>
         </dependency>
 
-        <!-- Test scoped dependencies -->
+<!--        &lt;!&ndash; Test scoped dependencies &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.citrusframework</groupId>-->
+<!--            <artifactId>citrus-test-support</artifactId>-->
+<!--            <version>${citrus.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-test-support</artifactId>
+            <artifactId>citrus-testng</artifactId>
             <version>${citrus.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-testng</artifactId>
+            <artifactId>citrus-camel</artifactId>
             <version>${citrus.version}</version>
             <scope>test</scope>
         </dependency>

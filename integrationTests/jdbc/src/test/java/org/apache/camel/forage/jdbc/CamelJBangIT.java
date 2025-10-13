@@ -26,21 +26,23 @@ import org.testng.annotations.Test;
 
 public class CamelJBangIT extends TestNGCitrusSupport implements TestActionSupport {
 
-
     @Test
     @CitrusTest(name = "RunIntegration_SourceCode_IT")
     public void runIntegrationWithSourceCodeIT() {
 
         if (!TestUtils.isNetworkReachable()) {
-            throw new SkipException("Test skipped because network is not reachable. We are probably running behind a proxy and JBang download is not possible.");
+            throw new SkipException(
+                    "Test skipped because network is not reachable. We are probably running behind a proxy and JBang download is not possible.");
         }
 
-        given(doFinally().actions(
-                catchException().actions(camel().jbang().stop().integration("hello"))
-        ));
+        //        given(doFinally().actions(
+        //                catchException().actions(camel().jbang().stop().integration("hello"))
+        //        ));
 
         when(camel().jbang()
-                .run("hello", """
+                .run(
+                        "hello",
+                        """
                 - from:
                     uri: "timer:tick"
                     parameters:
@@ -55,10 +57,7 @@ public class CamelJBangIT extends TestNGCitrusSupport implements TestActionSuppo
                 """)
                 .withSystemProperty("greeting", "Hello Camel"));
 
-        then(camel().jbang()
-                .verify()
-                .integration("hello")
-                .waitForLogMessage("HELLO CAMEL #10"));
+        then(camel().jbang().verify().integration("hello").waitForLogMessage("HELLO CAMEL #10"));
     }
 
     @Test

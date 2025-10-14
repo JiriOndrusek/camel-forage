@@ -16,6 +16,10 @@
 
 package org.apache.camel.forage.jdbc;
 
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
+
 import org.citrusframework.TestActionSupport;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.spi.Resources;
@@ -24,18 +28,28 @@ import org.testng.annotations.Test;
 
 public class CamelJBangIT extends TestNGCitrusSupport implements TestActionSupport {
 
-    //todo start container
+    // todo start container
 
     @Test
     @CitrusTest(name = "RunIntegration_Resource_IT")
     public void singleIT() {
 
         when(camel().jbang()
-                .custom("forage run")
-                .integration(Resources.fromClasspath("route.camel.yaml", CamelJBangIT.class))
-                .addResource(Resources.fromClasspath("forage-datasource-factory.properties", CamelJBangIT.class))
-                .withArg("--runtime", "quarkus"));
+                .custom(Arrays.asList("run"))
+                //                .integration(Resources.fromClasspath("route.camel.yaml", CamelJBangIT.class))
+//                .addResource(Resources.fromClasspath("route.camel.yaml", CamelJBangIT.class))
+                .addResource("route.camel.yaml")
+//                .addResource(Resources.fromClasspath("forage-datasource-factory.properties", CamelJBangIT.class))
+                .addResource("forage-datasource-factory.properties")
+//                .withArg("--runtime=spring-boot")
+                                .withArg("--runtime=quarkus")
+                .pidName("route")
+                .cmdToExecute("forage")
+                .integration(Paths.get("tmp").toFile().getAbsolutePath())
+                .dumpIntegrationOutput(true)
+                .withSystemProperty("citrus.camel.jbang.version", "4.16.0-SNAPSHOT")
+                .withEnvs(Map.of("CITRUS_CAMEL_JBANG_VERSION", "4.16.0-SNAPSHOT")));
 
-        then(camel().jbang().verify().integration("route-2362").waitForLogMessage("HELLO CAMEL #10"));
+        then(camel().jbang().verify().integration("route").waitForLogMessage("from jdbc default ds - [{id=1, content=postgres 1}, {id=2, content=postgres 2}]"));
     }
 }

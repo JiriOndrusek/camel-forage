@@ -1,0 +1,59 @@
+- route:
+    id: route-2362
+    from:
+      id: from-4124
+      uri: timer
+      parameters:
+        period: "1000"
+        timerName: template
+      steps:
+        - to:
+            id: to-3877
+            uri: sql
+            parameters:
+              query: select * from bar
+        - log:
+            id: log-2176
+            message: from sql default ds - ${body}
+- route:
+    id: route-2362-3853
+    from:
+      id: from-4124-3053
+      uri: timer
+      parameters:
+        period: "1000"
+        timerName: template
+      steps:
+        - setBody:
+            id: setBody-4165
+            simple:
+              expression: select * from bar
+        - to:
+            id: to-2601
+            uri: jdbc
+            parameters:
+              dataSourceName: dataSource
+        - log:
+            id: log-2176-3777
+            message: from jdbc default ds - ${body}
+- route:
+    id: route-2362-3853-1650
+    from:
+      id: from-4124-3053-1212
+      uri: timer
+      parameters:
+        period: "1000"
+        timerName: template
+      steps:
+        - setBody:
+            id: setBody-4165-1014
+            simple:
+              expression: select * from bar
+        - to:
+            id: to-5203
+            uri: spring-jdbc
+            parameters:
+              dataSourceName: dataSource
+        - log:
+            id: log-2176-3777-1307
+            message: from spring-jdbc default ds - ${body}

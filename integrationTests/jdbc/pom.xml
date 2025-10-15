@@ -20,20 +20,13 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-base</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-testng</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-
+            <!-- Citrus JUnit 5 Integration -->
+            <dependency>
+                <groupId>org.citrusframework</groupId>
+                <artifactId>citrus-junit5</artifactId>
+                <version>${citrus.version}</version>
+                <scope>test</scope>
+            </dependency>
         <dependency>
             <groupId>org.citrusframework</groupId>
             <artifactId>citrus-camel</artifactId>
@@ -41,126 +34,36 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-spring</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-validation-xml</artifactId>
-            <version>${citrus.version}</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.3</version>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-jbang-connector</artifactId>
-            <version>${citrus.version}</version>
-        </dependency>
+<!--            &lt;!&ndash; JUnit 5 API &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>org.junit.jupiter</groupId>-->
+<!--                <artifactId>junit-jupiter-api</artifactId>-->
+<!--                <version>5.9.3</version>-->
+<!--                <scope>test</scope>-->
+<!--            </dependency>-->
 
         <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-base</artifactId>
-            <version>${citrus.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-groovy</artifactId>
-            <version>${citrus.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-spring</artifactId>
-            <version>${citrus.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-jbang-connector</artifactId>
-            <version>${citrus.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>6.2.11</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-catalog</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring-xml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-yaml-dsl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-endpointdsl</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.4</version>
-        </dependency>
-
-<!--        &lt;!&ndash; Test scoped dependencies &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.citrusframework</groupId>-->
-<!--            <artifactId>citrus-test-support</artifactId>-->
-<!--            <version>${citrus.version}</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-testng</artifactId>
-            <version>${citrus.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-camel</artifactId>
-            <version>${citrus.version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.19.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-yaml</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-xml</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-validation-xml</artifactId>
-            <version>${citrus.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.citrusframework</groupId>
-            <artifactId>citrus-validation-text</artifactId>
-            <version>${citrus.version}</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.19.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>

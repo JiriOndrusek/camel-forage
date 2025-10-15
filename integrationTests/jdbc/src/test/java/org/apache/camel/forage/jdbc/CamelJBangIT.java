@@ -16,40 +16,80 @@
 
 package org.apache.camel.forage.jdbc;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
-
+import java.util.stream.Stream;
+import org.citrusframework.GherkinTestActionRunner;
 import org.citrusframework.TestActionSupport;
+import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
-import org.citrusframework.spi.Resources;
-import org.citrusframework.testng.TestNGCitrusSupport;
-import org.testng.annotations.Test;
+import org.citrusframework.junit.jupiter.CitrusExtension;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-public class CamelJBangIT extends TestNGCitrusSupport implements TestActionSupport {
+// @CitrusSupport
+@Testcontainers
+@ExtendWith(CitrusExtension.class)
+public class CamelJBangIT implements TestActionSupport {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+            .withExposedPorts(5432)
+            .withUsername("test")
+            .withPassword("test")
+            .withDatabaseName("postgresql")
+            .withInitScript("singleITInitScript.sql");
+
+    private static Path tmpDir;
+
+    @BeforeAll
+    static void copyResources() throws IOException {
+        tmpDir = Paths.get("target/tmp");
+        Files.createDirectories(tmpDir);
+        Stream.of("forage-datasource-factory.properties", "route.camel.yaml").forEach(resource -> {
+            final Path target = tmpDir.resolve(resource);
+            if (!Files.exists(target)) {
+                try (InputStream in = CamelJBangIT.class.getResourceAsStream(resource)) {
+                    Files.copy(in, target);
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not read resource " + resource, e);
+                }
+            }
+        });
+    }
 
     // todo start container
 
     @Test
     @CitrusTest(name = "RunIntegration_Resource_IT")
-    public void singleIT() {
+    public void singleIT(@CitrusResource GherkinTestActionRunner runner) {
 
-        when(camel().jbang()
+        String jdbcUrl = String.format("jdbc:postgresql://localhost:%d/postgresql", postgres.getMappedPort(5432));
+
+        runner.when(camel().jbang()
                 .custom(Arrays.asList("run"))
-                //                .integration(Resources.fromClasspath("route.camel.yaml", CamelJBangIT.class))
-//                .addResource(Resources.fromClasspath("route.camel.yaml", CamelJBangIT.class))
                 .addResource("route.camel.yaml")
-//                .addResource(Resources.fromClasspath("forage-datasource-factory.properties", CamelJBangIT.class))
                 .addResource("forage-datasource-factory.properties")
-//                .withArg("--runtime=spring-boot")
-                                .withArg("--runtime=quarkus")
+                .withArg("--runtime=quarkus")
                 .pidName("route")
                 .cmdToExecute("forage")
-                .integration(Paths.get("tmp").toFile().getAbsolutePath())
+                .integration(Paths.get("target/tmp").toFile().getAbsolutePath())
                 .dumpIntegrationOutput(true)
-                .withSystemProperty("citrus.camel.jbang.version", "4.16.0-SNAPSHOT")
-                .withEnvs(Map.of("CITRUS_CAMEL_JBANG_VERSION", "4.16.0-SNAPSHOT")));
+                .withSystemProperties(Map.of("citrus.camel.jbang.version", "4.16.0-SNAPSHOT", "jbc.url", jdbcUrl))
+                .withEnvs(Map.of("CITRUS_CAMEL_JBANG_VERSION", "4.16.0-SNAPSHOT", "JDBC_URL", jdbcUrl)));
 
-        then(camel().jbang().verify().integration("route").waitForLogMessage("from jdbc default ds - [{id=1, content=postgres 1}, {id=2, content=postgres 2}]"));
+        runner.then(camel().jbang()
+                .verify()
+                .integration("route")
+                .waitForLogMessage("from jdbc default ds - [{id=1, content=postgres 1}, {id=2, content=postgres 2}]"));
     }
 }

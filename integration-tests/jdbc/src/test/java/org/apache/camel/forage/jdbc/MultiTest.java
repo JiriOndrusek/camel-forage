@@ -16,15 +16,19 @@
 
 package org.apache.camel.forage.jdbc;
 
+import static org.citrusframework.camel.dsl.CamelSupport.camel;
+
 import java.util.Map;
+import java.util.function.Consumer;
 import org.apache.camel.forage.integration.tests.ForageIntegrationTest;
 import org.apache.camel.forage.integration.tests.IntegrationTestSetupExtension;
 import org.citrusframework.GherkinTestActionRunner;
 import org.citrusframework.TestActionSupport;
+import org.citrusframework.TestCaseRunner;
 import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.junit.jupiter.CitrusSupport;
-import org.junit.jupiter.api.Disabled;
+import org.citrusframework.spi.Resources;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.MySQLContainer;
@@ -33,11 +37,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@Disabled // POC
+/**
+ * Test class starts route only once, before all tests are executed.
+ */
 @CitrusSupport
 @Testcontainers
 @ExtendWith(IntegrationTestSetupExtension.class)
-public class MultiIT implements TestActionSupport, ForageIntegrationTest {
+public class MultiTest implements TestActionSupport, ForageIntegrationTest {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
@@ -54,23 +60,27 @@ public class MultiIT implements TestActionSupport, ForageIntegrationTest {
             .withExposedPorts(3306)
             .withInitScript("multiITmysqlInitScript.sql");
 
+
     @Override
-    public void runBeforeAll(
-            org.citrusframework.TestCaseRunner runner, org.citrusframework.actions.camel.CamelActionBuilder camel) {
-        // running jbang forage run with required resources and required runtime
-        runner.when(camel.jbang()
+    public void runBeforeAll(TestCaseRunner runner, Consumer<AutoCloseable> afterAll) {
+        runner.when((camel())
+                .jbang()
                 .custom("forage", "run")
                 .processName("route")
-                .addResource("route.camel.yaml")
-                .addResource("forage-datasource-factory.properties")
+                .addResource(Resources.fromClasspath(getClass().getSimpleName() + "/route.camel.yaml", getClass()))
+                .addResource(Resources.fromClasspath(
+                        getClass().getSimpleName() + "/forage-datasource-factory.properties", getClass()))
                 .withArg(System.getProperty(IntegrationTestSetupExtension.RUNTIME_PROPERTY))
+                .dumpIntegrationOutput(true)
+                .autoRemove(false)
                 .withEnvs(Map.of("DS1_JDBC_URL", postgres.getJdbcUrl(), "DS2_JDBC_URL", mysql.getJdbcUrl())));
-    }
 
+        afterAll.accept(() -> runner.then(camel().jbang().stop().integration("route")));
+    }
+    
     @Test
     @CitrusTest()
     public void postgresql(@CitrusResource GherkinTestActionRunner runner) {
-
         // validation of logged message
         runner.then(camel().jbang()
                 .verify()
@@ -81,11 +91,11 @@ public class MultiIT implements TestActionSupport, ForageIntegrationTest {
     @Test
     @CitrusTest()
     public void mysql(@CitrusResource GherkinTestActionRunner runner) {
-
         // validation of logged message
         runner.then(camel().jbang()
                 .verify()
                 .integration("route")
                 .waitForLogMessage("from sql mysql - [{id=1, content=mysql 1}, {id=2, content=mysql 2}]"));
     }
+
 }

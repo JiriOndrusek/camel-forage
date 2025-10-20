@@ -17,6 +17,7 @@
 package org.apache.camel.forage.jdbc;
 
 import java.util.Collections;
+
 import org.apache.camel.forage.integration.tests.IntegrationTestSetupExtension;
 import org.citrusframework.GherkinTestActionRunner;
 import org.citrusframework.TestActionSupport;
@@ -24,8 +25,7 @@ import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.junit.jupiter.CitrusSupport;
 import org.citrusframework.spi.Resources;
-import org.junit.jupiter.api.TestTemplate;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,8 +33,7 @@ import org.testcontainers.utility.DockerImageName;
 
 @CitrusSupport
 @Testcontainers
-@ExtendWith(IntegrationTestSetupExtension.class)
-public class SingleIT implements TestActionSupport {
+public class SingleTest implements TestActionSupport {
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
@@ -45,7 +44,7 @@ public class SingleIT implements TestActionSupport {
             .withDatabaseName("postgresql")
             .withInitScript("singleITInitScript.sql");
 
-    @TestTemplate
+    @Test
     @CitrusTest()
     public void singleIT(@CitrusResource GherkinTestActionRunner runner) {
         // running jbang forage run with required resources and required runtime

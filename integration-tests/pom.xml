@@ -45,8 +45,21 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
+                    <dependenciesToScan>
+                        <dependency>org.apache.camel.forage:integration-tests-common</dependency>
+                    </dependenciesToScan>
+                    <includes>
+                        <include>**/*Suite</include>
+                    </includes>
                     <systemPropertyVariables>
                         <citrus.camel.jbang.work.dir>${project.build.directory}/.run</citrus.camel.jbang.work.dir>
                     </systemPropertyVariables>

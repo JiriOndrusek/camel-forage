@@ -1,19 +1,33 @@
 package org.apache.camel.forage.quarkus.jdbc;
 
+import io.agroal.api.AgroalDataSource;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
+import javax.sql.DataSource;
+import org.apache.camel.CamelContext;
 import org.apache.camel.forage.core.annotations.ForageFactory;
+import org.apache.camel.forage.core.common.BeanFactory;
+import org.apache.camel.forage.core.jdbc.DataSourceProvider;
 import org.apache.camel.forage.core.util.config.ConfigStore;
+import org.apache.camel.forage.jdbc.DataSourceBeanFactory;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
+import org.apache.camel.forage.jdbc.common.aggregation.ForageAggregationRepository;
 import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ForageFactory(
         value = "CamelQuarkusDataSourceConfigSource",
         components = {"camel-sql", "camel-jdbc"},
         description = "Default Camel Quarkus DataSource config source",
-        factoryType = "DataSource")
-public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
+        factoryType = "DataSource",
+        autowired = true)
+@ApplicationScoped
+public class ForageDataSourceQuarkusConfigSource implements ConfigSource, BeanFactory {
 
     private static final Map<String, String> configuration = new HashMap<>();
 
@@ -110,5 +124,69 @@ public class ForageDataSourceQuarkusConfigSource implements ConfigSource {
     @Override
     public String getName() {
         return ForageDataSourceQuarkusConfigSource.class.getSimpleName();
+    }
+
+    private final Logger LOG = LoggerFactory.getLogger(DataSourceBeanFactory.class);
+
+    private CamelContext camelContext;
+
+    //    @Inject
+    private AgroalDataSource agroalDataSource;
+
+    @Override
+    public void configure() {
+
+        DataSourceFactoryConfig config = new DataSourceFactoryConfig();
+        Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, "(.+).jdbc\\..*");
+
+        if (!prefixes.isEmpty()) {
+            for (String name : prefixes) {
+                if (camelContext.getRegistry().lookupByNameAndType(name, DataSource.class) == null) {
+                    DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
+                    createAggregationRepository(dsFactoryConfig, agroalDataSource);
+                }
+            }
+        } else {
+            try {
+                if (camelContext.getRegistry().lookupByNameAndType("dataSource", DataSource.class) == null) {
+                    final List<ServiceLoader.Provider<DataSourceProvider>> providers =
+                            findProviders(DataSourceProvider.class);
+                    if (providers.size() == 1) {
+                        createAggregationRepository(config, agroalDataSource);
+                    } else {
+                        throw new IllegalArgumentException("No dataSource implementation is present in the classpath");
+                    }
+                }
+            } catch (Exception ex) {
+                LOG.error(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void createAggregationRepository(DataSourceFactoryConfig dsFactoryConfig, DataSource agroalDataSource) {
+        if (!dsFactoryConfig.transactionEnabled() && dsFactoryConfig.aggregationRepositoryName() != null) {
+            LOG.warn("Transactions have to be enabled in order to create aggregation repositories");
+            return;
+        }
+        if (dsFactoryConfig.aggregationRepositoryName() != null) {
+            camelContext
+                    .getRegistry()
+                    .bind(
+                            dsFactoryConfig.aggregationRepositoryName(),
+                            new ForageAggregationRepository(
+                                    agroalDataSource,
+                                    com.arjuna.ats.jta.TransactionManager.transactionManager(),
+                                    dsFactoryConfig));
+        }
+    }
+
+    @Override
+    public void setCamelContext(CamelContext camelContext) {
+        this.camelContext = camelContext;
+    }
+
+    @Override
+    public CamelContext getCamelContext() {
+        return camelContext;
     }
 }

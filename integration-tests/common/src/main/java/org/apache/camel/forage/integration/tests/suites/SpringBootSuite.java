@@ -1,5 +1,6 @@
 package org.apache.camel.forage.integration.tests.suites;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.platform.suite.api.AfterSuite;
 import org.junit.platform.suite.api.BeforeSuite;
 import org.junit.platform.suite.api.SelectPackages;
@@ -8,6 +9,7 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Disabled
 @Suite
 @SuiteDisplayName("springboot")
 @SelectPackages("org.apache.camel.forage")

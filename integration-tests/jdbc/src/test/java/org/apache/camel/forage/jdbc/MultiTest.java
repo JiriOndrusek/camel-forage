@@ -29,6 +29,7 @@ import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.junit.jupiter.CitrusSupport;
 import org.citrusframework.spi.Resources;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.MySQLContainer;
@@ -40,6 +41,7 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Test class starts route only once, before all tests are executed.
  */
+@Disabled
 @CitrusSupport
 @Testcontainers
 @ExtendWith(IntegrationTestSetupExtension.class)

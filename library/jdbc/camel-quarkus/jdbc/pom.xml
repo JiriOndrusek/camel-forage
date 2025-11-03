@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>camel-quarkus</artifactId>
+    <artifactId>forage-quarkus-jdbc-parent</artifactId>
     <packaging>pom</packaging>
     <name>Camel Forage :: Library :: JDBC :: Camel Quarkus</name>
 
@@ -26,7 +26,8 @@
     </dependencyManagement>
 
     <modules>
-        <module>jdbc</module>
+        <module>runtime</module>
+        <module>deployment</module>
     </modules>
 
 </project>

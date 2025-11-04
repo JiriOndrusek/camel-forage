@@ -10,10 +10,16 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>forage-quarkus-jdbc-configurer</artifactId>
-    <name>Camel Forage :: Library :: JDBC :: Jdbc Quarkus Configurer</name>
+    <artifactId>forage-quarkus-jdbc</artifactId>
+    <name>Camel Forage :: Library :: JDBC :: Runtime</name>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-core</artifactId>
+            <version>3.29.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.camel.forage</groupId>

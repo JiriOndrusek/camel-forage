@@ -30,8 +30,13 @@ public class DatasourceExportCustomizer implements ExportCustomizer {
             case quarkus -> {
                 listDependencies(
                         dependencies,
-                        Arrays.asList("mvn:org.apache.camel.forage:forage-quarkus-jdbc-configurer:"
-                                + DataSourceExportHelper.getProjectVersion()),
+                        Arrays.asList(
+                                "mvn:org.apache.camel.forage:forage-quarkus-jdbc:"
+                                        + DataSourceExportHelper.getProjectVersion(),
+                                "mvn:org.apache.camel.forage:forage-quarkus-jdbc-deployment:"
+                                        + DataSourceExportHelper.getProjectVersion(),
+                                "mvn:org.apache.camel.quarkus:camel-quarkus-sql:"
+                                        + DataSourceExportHelper.getQuarkusVersion()),
                         "mvn:io.quarkus:quarkus-jdbc-",
                         ":" + DataSourceExportHelper.getQuarkusVersion(),
                         runtime);

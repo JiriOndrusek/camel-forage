@@ -3,6 +3,7 @@ package org.apache.camel.forage.integration.tests;
 import java.util.ArrayList;
 import java.util.Map;
 import org.apache.camel.forage.plugin.DataSourceExportHelper;
+import org.citrusframework.GherkinTestActionRunner;
 import org.citrusframework.TestActionBuilder;
 import org.citrusframework.TestCaseRunner;
 import org.citrusframework.camel.actions.CamelActionBuilder;
@@ -11,6 +12,8 @@ import org.citrusframework.junit.jupiter.CitrusExtensionHelper;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * and should add args to the citrus runner similar to <pre>.withArg(System.getProperty(IntegrationTestSetupExtension.RUNTIME_PROPERTY))</pre>
  */
-public class IntegrationTestSetupExtension implements BeforeEachCallback, AfterAllCallback {
+public class IntegrationTestSetupExtension implements BeforeEachCallback, AfterAllCallback, ParameterResolver {
 
     private final Logger LOG = LoggerFactory.getLogger(IntegrationTestSetupExtension.class);
 
@@ -56,7 +59,6 @@ public class IntegrationTestSetupExtension implements BeforeEachCallback, AfterA
             testContext.getVariables().putAll(previousTestContext.getVariables());
         } else {
             previousTestContext = testContext;
-            ;
         }
     }
 
@@ -102,5 +104,16 @@ public class IntegrationTestSetupExtension implements BeforeEachCallback, AfterA
                         .withArg("--groupId", "org.apache.camel.forage")
                         .withArg("--version", projectVersion)
                         .withArg("--gav", "org.apache.camel.forage:camel-jbang-plugin-forage:" + projectVersion));
+    }
+
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return (parameterContext.getParameter().getType() == GherkinTestActionRunner.class
+                || parameterContext.getParameter().getType() == ForageTestCaseRunner.class);
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return CitrusExtensionHelper.getTestRunner(extensionContext);
     }
 }

@@ -7,10 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
+import org.apache.camel.forage.integration.tests.ForageTestCaseRunner;
 import org.apache.camel.forage.integration.tests.IntegrationTestSetupExtension;
-import org.citrusframework.GherkinTestActionRunner;
 import org.citrusframework.TestActionSupport;
-import org.citrusframework.annotations.CitrusResource;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.junit.jupiter.CitrusSupport;
 import org.citrusframework.spi.Resource;
@@ -39,8 +38,7 @@ public class IdempotentTest implements TestActionSupport {
             .withExposedPorts(5432)
             .withUsername("test")
             .withPassword("test")
-            .withDatabaseName("postgresql")
-            .withInitScript("idempotentITInitScript.sql");
+            .withDatabaseName("postgresql");
 
     @BeforeAll
     static void setPathIntoRoute() throws IOException {
@@ -59,8 +57,7 @@ public class IdempotentTest implements TestActionSupport {
 
     @Test
     @CitrusTest()
-    public void aggregationTest(@CitrusResource GherkinTestActionRunner runner)
-            throws IOException, InterruptedException {
+    public void aggregationTest(ForageTestCaseRunner runner) throws IOException, InterruptedException {
         Files.createDirectories(INPUT_FOLDER);
 
         // running jbang forage run with required resources and required runtime

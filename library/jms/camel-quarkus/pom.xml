@@ -15,7 +15,20 @@
     <name>Camel Forage :: Library :: JMS :: Camel Quarkus</name>
 
     <modules>
-        <module>jms</module>
+        <module>deployment</module>
+        <module>runtime</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.quarkus.platform</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>${quarkus.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

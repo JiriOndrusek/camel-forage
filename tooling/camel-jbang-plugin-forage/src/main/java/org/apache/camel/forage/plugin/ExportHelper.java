@@ -84,7 +84,7 @@ public final class ExportHelper {
     /**
      * Reads property from the file versions.properties (which contains build time resolved versions)
      */
-    private static String getString(String key, String error) {
+    public static String getString(String key, String error) {
         try {
             java.util.Properties properties = new java.util.Properties();
             try (InputStream is =

@@ -64,23 +64,27 @@ public class DataSourceBeanFactory implements BeanFactory {
                 }
             }
         } else {
-            try {
-                if (camelContext.getRegistry().lookupByNameAndType("dataSource", DataSource.class) == null) {
-                    final List<ServiceLoader.Provider<DataSourceProvider>> providers =
-                            findProviders(DataSourceProvider.class);
-                    if (providers.size() == 1) {
-                        ForageDataSource forageDataSource = doCreateDataSource(providers.get(0), null);
-                        camelContext.getRegistry().bind(DEFAULT_DATASOURCE, forageDataSource.dataSource());
-                        createAggregationRepository(config, forageDataSource.dataSource());
-                        createIdempotentRepository(
-                                config, forageDataSource.dataSource(), forageDataSource.forageIdRepository());
-                    } else {
-                        throw new IllegalArgumentException("No dataSource implementation is present in the classpath");
-                    }
-                }
-            } catch (Exception ex) {
-                LOG.error(ex.getMessage(), ex);
-            }
+            //            try {
+            //                if (camelContext.getRegistry().lookupByNameAndType("dataSource", DataSource.class) ==
+            // null) {
+            //                    final List<ServiceLoader.Provider<DataSourceProvider>> providers =
+            //                            findProviders(DataSourceProvider.class);
+            //                    if (providers.size() == 1) {
+            //                        ForageDataSource forageDataSource = doCreateDataSource(providers.get(0), null);
+            //                        camelContext.getRegistry().bind(DEFAULT_DATASOURCE,
+            // forageDataSource.dataSource());
+            //                        createAggregationRepository(config, forageDataSource.dataSource());
+            //                        createIdempotentRepository(
+            //                                config, forageDataSource.dataSource(),
+            // forageDataSource.forageIdRepository());
+            //                    } else {
+            //                        throw new IllegalArgumentException("No dataSource implementation is present in the
+            // classpath");
+            //                    }
+            //                }
+            //            } catch (Exception ex) {
+            //                LOG.error(ex.getMessage(), ex);
+            //            }
         }
     }
 

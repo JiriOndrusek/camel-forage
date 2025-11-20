@@ -6,7 +6,7 @@ import java.util.Set;
 import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.ConfigStore;
-import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
+import org.apache.camel.forage.jms.common.ConnectionFactoryConfig;
 import org.apache.camel.forage.plugin.ExportHelper;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
@@ -19,12 +19,12 @@ import org.slf4j.LoggerFactory;
  * Adds quarkus or spring-boot runtime dependencies, thus making export command less verbose.
  * </p>
  */
-public class DatasourceExportCustomizer implements ExportCustomizer {
-    private static final Logger LOG = LoggerFactory.getLogger(DatasourceExportCustomizer.class);
+public class JmsExportCustomizer implements ExportCustomizer {
+    private static final Logger LOG = LoggerFactory.getLogger(JmsExportCustomizer.class);
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     @Override
@@ -37,24 +37,24 @@ public class DatasourceExportCustomizer implements ExportCustomizer {
             case quarkus -> {
                 listDependencies(
                         dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
-                        "mvn:io.quarkus:quarkus-jdbc-",
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jms),
+                        "mvn:io.quarkus:quarkus-jms-",
                         ":" + ExportHelper.getQuarkusVersion(),
                         runtime);
             }
             case springBoot -> {
                 listDependencies(
                         dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jms),
+                        "mvn:org.apache.camel.forage:forage-jms-",
                         ":" + ExportHelper.getProjectVersion(),
                         runtime);
             }
             case main -> {
                 listDependencies(
                         dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jms),
+                        "mvn:org.apache.camel.forage:forage-jms-",
                         ":" + ExportHelper.getProjectVersion(),
                         runtime);
             }
@@ -72,26 +72,22 @@ public class DatasourceExportCustomizer implements ExportCustomizer {
         dependencies.addAll(Arrays.asList(basicDependencies.split(",")));
 
         try {
-            DataSourceFactoryConfig config = new DataSourceFactoryConfig();
-            Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, ExportHelper.JDBC_PREFIXES_REGEXP);
+            ConnectionFactoryConfig config = new ConnectionFactoryConfig();
+            Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, ExportHelper.JMS_PREFIXES_REGEXP);
 
             if (!prefixes.isEmpty()) {
                 for (String name : prefixes) {
-                    DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
-                    // todo get quarkus version
-                    dependencies.add(depPrefix + dsFactoryConfig.dbKind() + depVersion);
+                    ConnectionFactoryConfig jmsFactoryConfig = new ConnectionFactoryConfig(name);
+                    // todoo get quarkus version
+                    dependencies.add(depPrefix + jmsFactoryConfig.jmsKind() + depVersion);
                 }
             } else {
                 // logs a warn message, how to skip it?
-                if (Strings.isNotBlank(config.dbKind())) {
-                    dependencies.add(depPrefix + config.dbKind() + depVersion);
+                if (Strings.isNotBlank(config.jmsKind())) {
+                    dependencies.add(depPrefix + config.jmsKind() + depVersion);
                 }
             }
 
-            // todo better location
-            if (runtime == RuntimeType.quarkus && config.transactionEnabled()) {
-                dependencies.add("mvn:io.quarkus:quarkus-narayana-jta:" + ExportHelper.getQuarkusVersion());
-            }
         } catch (Exception ex) {
             // todo log error
         }

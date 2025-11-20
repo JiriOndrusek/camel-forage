@@ -39,6 +39,7 @@
     <modules>
         <module>common</module>
         <module>jdbc</module>
+        <module>jms</module>
     </modules>
 
     <build>

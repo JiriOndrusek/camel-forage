@@ -28,6 +28,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.camel.forage</groupId>
+            <artifactId>forage-jms-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.10.2</version>

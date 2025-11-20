@@ -5,7 +5,16 @@ import java.io.InputStream;
 /**
  * Utility class for jdbc configuration value processing and transformation in the Camel Forage framework.
  */
-public final class DataSourceExportHelper {
+public final class ExportHelper {
+
+    public enum DependenciesType {
+        plain_jdbc,
+        quarkus_jdbc,
+        springBoot_jdbc,
+        plain_jms,
+        quarkus_jms,
+        springBoot_jms
+    }
 
     /**
      * Regexp for See {@link org.apache.camel.forage.core.util.config.ConfigStore#readPrefixes(InputStream, String)}
@@ -20,6 +29,19 @@ public final class DataSourceExportHelper {
      * </p>
      * */
     public static final String JDBC_PREFIXES_REGEXP = "(.+).jdbc\\..*";
+
+    public static final String JMS_PREFIXES_REGEXP = "(.+).jms\\..*";
+
+    /**
+     * Regexp to find any datasource property at all.
+     *
+     * <p>finds properties like
+     * <pre>
+     *     jdbc.url=jdbc:postgresql://localhost:5432/postgres
+     *     jdbc.db.kind=postgresql
+     * </pre>
+     * */
+    public static final String JDBC_REGEXP = "jdbc\\..*";
 
     /**
      * Gets the quarkus version from the versions.properties file. (which is populated during buildtime)
@@ -49,29 +71,14 @@ public final class DataSourceExportHelper {
     }
 
     /**
-     * Gets the plain dependencies from the versions.properties file. (which is populated during buildtime)
+     * Gets the dependencies from the datasource-command.properties file. (which is populated during buildtime)
      *
      * @return the project version
      */
-    public static String getPlainDependencies() {
-        return getString("plain.dependencies", "Could not determine dependencies from properties file.");
-    }
-    /**
-     * Gets the spring-boot dependencies from the versions.properties file. (which is populated during buildtime)
-     *
-     * @return the project version
-     */
-    public static String getQSpringBootDependencies() {
+    public static String getDependencies(DependenciesType type) {
         return getString(
-                "springBoot.dependencies", "Could not determine spring-boot dependencies from properties file.");
-    }
-    /**
-     * Gets the quarkus dependencies from the versions.properties file. (which is populated during buildtime)
-     *
-     * @return the project version
-     */
-    public static String getQuarkusDependencies() {
-        return getString("quarkus.dependencies", "Could not determine quarkus dependencies from properties file.");
+                type.name().replace("_", ".") + ".dependencies",
+                "Could not determine dependencies from properties file.");
     }
 
     /**
@@ -80,9 +87,8 @@ public final class DataSourceExportHelper {
     private static String getString(String key, String error) {
         try {
             java.util.Properties properties = new java.util.Properties();
-            try (InputStream is = DataSourceExportHelper.class
-                    .getClassLoader()
-                    .getResourceAsStream("datasource-command.properties")) {
+            try (InputStream is =
+                    ExportHelper.class.getClassLoader().getResourceAsStream("datasource-command.properties")) {
                 if (is != null) {
                     properties.load(is);
                     String version = properties.getProperty(key);

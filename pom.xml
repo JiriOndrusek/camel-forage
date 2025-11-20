@@ -54,6 +54,7 @@
         <!-- Test container image properties -->
         <postgres.container.image>mirror.gcr.io/postgres:17.5-alpine</postgres.container.image>
         <mysql.container.image>mirror.gcr.io/mysql:8.4</mysql.container.image>
+        <activemq.artemis.container.image>mirror.gcr.io/apache/activemq-artemis:2.44.0</activemq.artemis.container.image>
     </properties>
 
     <dependencyManagement>

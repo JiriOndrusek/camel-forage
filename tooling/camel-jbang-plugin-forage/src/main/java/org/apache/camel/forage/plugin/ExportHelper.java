@@ -4,20 +4,15 @@ import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.plugin.datasource.DatasourceExportCustomizer;
-import org.apache.camel.forage.plugin.datasource.JmsExportCustomizer;
+import org.apache.camel.forage.plugin.jms.JmsExportCustomizer;
 
 /**
  * Utility class for jdbc configuration value processing and transformation in the Camel Forage framework.
  */
 public final class ExportHelper {
 
-    public enum DependenciesType {
-        plain_jdbc,
-        quarkus_jdbc,
-        springBoot_jdbc,
-        plain_jms,
-        quarkus_jms,
-        springBoot_jms
+    public static Stream<ExportCustomizer> getAllCustomizers() {
+        return Stream.of(new DatasourceExportCustomizer(), new JmsExportCustomizer());
     }
 
     /**
@@ -79,10 +74,8 @@ public final class ExportHelper {
      *
      * @return the project version
      */
-    public static String getDependencies(DependenciesType type) {
-        return getString(
-                type.name().replace("_", ".") + ".dependencies",
-                "Could not determine dependencies from properties file.");
+    public static String getDependencies(String key) {
+        return getString(key, "Could not determine dependencies from properties file.");
     }
 
     /**
@@ -107,9 +100,5 @@ public final class ExportHelper {
 
         // Ultimate fallback
         return null;
-    }
-
-    public static Stream<ExportCustomizer> getAllCustomizers() {
-        return Stream.of(new DatasourceExportCustomizer(), new JmsExportCustomizer());
     }
 }

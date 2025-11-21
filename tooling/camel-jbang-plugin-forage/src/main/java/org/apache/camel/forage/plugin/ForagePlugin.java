@@ -57,9 +57,11 @@ public class ForagePlugin implements Plugin {
         return Optional.of(new PluginExporter() {
             @Override
             public Set<String> getDependencies(org.apache.camel.dsl.jbang.core.common.RuntimeType runtimeType) {
+                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>. " + runtimeType);
                 return ExportHelper.getAllCustomizers()
                         .filter(ExportCustomizer::isEnabled)
-                        .map(exportCustomizer -> exportCustomizer.resolveRuntimeDependencies(RuntimeType.main))
+                        .map(exportCustomizer ->
+                                exportCustomizer.resolveRuntimeDependencies(RuntimeType.fromValue(runtimeType.name())))
                         .flatMap(Set::stream)
                         .collect(Collectors.toSet());
             }

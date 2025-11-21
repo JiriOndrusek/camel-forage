@@ -31,34 +31,36 @@ public class DatasourceExportCustomizer implements ExportCustomizer {
     public Set<String> resolveRuntimeDependencies(RuntimeType runtime) {
         Set<String> dependencies = new HashSet<>();
 
-        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
-
-        switch (_runtime) {
-            case quarkus -> {
-                listDependencies(
-                        dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
-                        "mvn:io.quarkus:quarkus-jdbc-",
-                        ":" + ExportHelper.getQuarkusVersion(),
-                        runtime);
-            }
-            case springBoot -> {
-                listDependencies(
-                        dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
-                        ":" + ExportHelper.getProjectVersion(),
-                        runtime);
-            }
-            case main -> {
-                listDependencies(
-                        dependencies,
-                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
-                        ":" + ExportHelper.getProjectVersion(),
-                        runtime);
-            }
-        }
+        //        todo refactor
+        //
+        //        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
+        //
+        //        switch (_runtime) {
+        //            case quarkus -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
+        //                        "mvn:io.quarkus:quarkus-jdbc-",
+        //                        ":" + ExportHelper.getQuarkusVersion(),
+        //                        runtime);
+        //            }
+        //            case springBoot -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
+        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
+        //                        ":" + ExportHelper.getProjectVersion(),
+        //                        runtime);
+        //            }
+        //            case main -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
+        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
+        //                        ":" + ExportHelper.getProjectVersion(),
+        //                        runtime);
+        //            }
+        //        }
 
         return dependencies;
     }

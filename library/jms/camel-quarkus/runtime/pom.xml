@@ -39,12 +39,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.camel.forage</groupId>
-            <artifactId>forage-jms</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.smallrye.config</groupId>
             <artifactId>smallrye-config</artifactId>
         </dependency>

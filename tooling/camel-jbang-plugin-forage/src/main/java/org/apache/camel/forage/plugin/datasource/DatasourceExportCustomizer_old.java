@@ -1,48 +1,67 @@
 package org.apache.camel.forage.plugin.datasource;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
 import org.apache.camel.forage.plugin.ExportHelper;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AbstractExportCustomizer implements ExportCustomizer {
+/**
+ * Implementation of export customizer for datasource properties.
+ *
+ * <p>
+ * Adds quarkus or spring-boot runtime dependencies, thus making export command less verbose.
+ * </p>
+ */
+public class DatasourceExportCustomizer_old implements ExportCustomizer {
+    private static final Logger LOG = LoggerFactory.getLogger(DatasourceExportCustomizer_old.class);
 
     @Override
-    public abstract boolean isEnabled();
-
-    //    abstract getPrefix();
-    //
-    //    abstract getRequiredProperty();
-    //
-    //
-    //    abstract getConfigClass()
-    //
-    //        abstract getMavenArtifact();
+    public boolean isEnabled() {
+        return false;
+    }
 
     @Override
     public Set<String> resolveRuntimeDependencies(RuntimeType runtime) {
-        var runtimeDep = runtimeRelatedDependencies(runtime);
-        String[] runtimeArray = runtimeDep == null || runtimeDep.isBlank() ? new String[0] : runtimeDep.split(",");
+        Set<String> dependencies = new HashSet<>();
 
-        var customDep = customDependencies(runtime);
-        String[] customArray = customDep == null || customDep.isBlank() ? new String[0] : customDep.split(",");
+        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
 
-        return Stream.of(runtimeArray, customArray)
-                .map(Arrays::asList)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+        switch (_runtime) {
+            case quarkus -> {
+                listDependencies(
+                        dependencies,
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
+                        "mvn:io.quarkus:quarkus-jdbc-",
+                        ":" + ExportHelper.getQuarkusVersion(),
+                        runtime);
+            }
+            case springBoot -> {
+                listDependencies(
+                        dependencies,
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
+                        "mvn:org.apache.camel.forage:forage-jdbc-",
+                        ":" + ExportHelper.getProjectVersion(),
+                        runtime);
+            }
+            case main -> {
+                listDependencies(
+                        dependencies,
+                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
+                        "mvn:org.apache.camel.forage:forage-jdbc-",
+                        ":" + ExportHelper.getProjectVersion(),
+                        runtime);
+            }
+        }
+
+        return dependencies;
     }
-
-    abstract String runtimeRelatedDependencies(RuntimeType runtime);
-
-    abstract String customDependencies(RuntimeType runtime);
 
     private static void listDependencies(
             Set<String> dependencies,

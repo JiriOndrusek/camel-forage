@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  * Adds quarkus or spring-boot runtime dependencies, thus making export command less verbose.
  * </p>
  */
-public class JmsExportCustomizer2 implements ExportCustomizer {
-    private static final Logger LOG = LoggerFactory.getLogger(JmsExportCustomizer2.class);
+public class JmsExportCustomizer_old implements ExportCustomizer {
+    private static final Logger LOG = LoggerFactory.getLogger(JmsExportCustomizer_old.class);
 
     @Override
     public boolean isEnabled() {

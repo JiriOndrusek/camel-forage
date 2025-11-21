@@ -22,6 +22,8 @@ public class JmsExportCustomizer extends AbstractExportCustomizer {
 
     @Override
     String runtimeRelatedDependencies(RuntimeType runtime) {
+        System.out.println("//////////////////////////////////////");
+        System.out.println("ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jms)");
         return ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jms);
     }
 

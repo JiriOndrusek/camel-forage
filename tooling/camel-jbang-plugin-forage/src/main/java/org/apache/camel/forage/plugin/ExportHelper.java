@@ -1,6 +1,10 @@
 package org.apache.camel.forage.plugin;
 
 import java.io.InputStream;
+import java.util.stream.Stream;
+import org.apache.camel.forage.core.common.ExportCustomizer;
+import org.apache.camel.forage.plugin.datasource.DatasourceExportCustomizer;
+import org.apache.camel.forage.plugin.datasource.JmsExportCustomizer;
 
 /**
  * Utility class for jdbc configuration value processing and transformation in the Camel Forage framework.
@@ -103,5 +107,9 @@ public final class ExportHelper {
 
         // Ultimate fallback
         return null;
+    }
+
+    public static Stream<ExportCustomizer> getAllCustomizers() {
+        return Stream.of(new DatasourceExportCustomizer(), new JmsExportCustomizer());
     }
 }

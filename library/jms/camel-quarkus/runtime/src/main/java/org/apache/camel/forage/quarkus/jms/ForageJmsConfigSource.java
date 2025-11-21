@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 public class ForageJmsConfigSource implements ConfigSource {
     private static final Logger LOG = LoggerFactory.getLogger(ForageJmsConfigSource.class);
     private static final Map<String, String> configuration = new HashMap<>();
-
+    // this ca;ss is nt called from the Quarkus3 exported example
+    //    and even if it would be here, the jdb dep is required because of the usage from config -> fix
     static {
         // there is no need to check. whether property already exists, because the priority solves it
 
@@ -23,17 +24,17 @@ public class ForageJmsConfigSource implements ConfigSource {
         if (!prefixes.isEmpty()) {
             for (String name : prefixes) {
                 ConnectionFactoryConfig connectionFactoryConfig = new ConnectionFactoryConfig(name);
-                configureDs(name, connectionFactoryConfig);
+                configureArtemis(name, connectionFactoryConfig);
             }
-        } else if (!ConfigStore.getInstance().readPrefixes(config, "jms\\..*").isEmpty()) {
-            ;
-            configureDs("dataSource", config);
+        } else if (!ConfigStore.getInstance().readPrefixes(config, "(jms)\\..*").isEmpty()) {
+            //
+            configureArtemis("<default>", config);
         } else {
             LOG.trace("No jms config found.");
         }
     }
 
-    private static void configureDs(String prefix, ConnectionFactoryConfig config) {
+    private static void configureArtemis(String prefix, ConnectionFactoryConfig config) {
         String property = "quarkus.artemis.";
         if (prefix != null && !prefix.isEmpty()) {
             property = property + "\"" + prefix + "\".";

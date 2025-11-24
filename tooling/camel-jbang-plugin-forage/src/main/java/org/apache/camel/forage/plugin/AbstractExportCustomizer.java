@@ -2,12 +2,15 @@ package org.apache.camel.forage.plugin;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.Config;
+import org.apache.camel.forage.core.util.config.ConfigModule;
 import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
 import org.apache.logging.log4j.util.Strings;
@@ -19,13 +22,9 @@ public abstract class AbstractExportCustomizer implements ExportCustomizer {
 
     protected abstract String getPrefix();
 
-    //    abstract String getRequiredProperty();
-
     protected abstract Config getConfig();
 
-    protected abstract String runtimeRelatedDependencies(RuntimeType runtime);
-
-    protected abstract String customDependencies(RuntimeType runtime);
+    protected abstract String getDependencies(RuntimeType runtime);
 
     @Override
     public boolean isEnabled() {
@@ -36,7 +35,7 @@ public abstract class AbstractExportCustomizer implements ExportCustomizer {
             String defaultPropertiesRegexp = "(" + getPrefix() + ")..+";
             Set<String> defaultProperties =
                     ConfigStore.getInstance().readPrefixes(getConfig(), defaultPropertiesRegexp);
-            Set<String> prefixes = getPrefixes();
+            Set<String> prefixes = ConfigStore.getInstance().readPrefixes(getConfig(), "(.+)." + getPrefix() + "..+");
 
             if (defaultProperties.isEmpty() && prefixes.isEmpty()) {
                 Log.warn("No property required for " + getPrefix() + " is present. Configuration is not exported!");
@@ -49,21 +48,27 @@ public abstract class AbstractExportCustomizer implements ExportCustomizer {
         }
     }
 
-    protected Set<String> getPrefixes() {
-        return ConfigStore.getInstance().readPrefixes(getConfig(), "(.+)." + getPrefix() + "..+");
+    protected Set<String> readValuesOfProperty(ConfigModule entry) {
+
+        Set<String> named = ConfigStore.getInstance().readPrefixes(getConfig(), "(.+)." + getPrefix() + "..+");
+        // values from default properties
+        Set<Optional<String>> values = new LinkedHashSet<>(named.stream()
+                .map(n -> ConfigStore.getInstance().get(entry.asNamed(n)))
+                .collect(Collectors.toSet()));
+        // add default value
+        values.add(ConfigStore.getInstance().get(entry));
+
+        return values.stream().filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
     }
 
     @Override
     public Set<String> resolveRuntimeDependencies(RuntimeType runtime) {
         System.out.println("**************************************************");
-        var runtimeDep = runtimeRelatedDependencies(runtime);
+        System.out.println("Runtime: " + runtime);
+        var runtimeDep = getDependencies(runtime);
         String[] runtimeArray = runtimeDep == null || runtimeDep.isBlank() ? new String[0] : runtimeDep.split(",");
 
-        var customDep = customDependencies(runtime);
-        System.out.println("custom:" + customDep);
-        String[] customArray = customDep == null || customDep.isBlank() ? new String[0] : customDep.split(",");
-
-        return Stream.of(runtimeArray, customArray)
+        return Stream.of(runtimeArray, runtimeArray)
                 .map(Arrays::asList)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toSet());

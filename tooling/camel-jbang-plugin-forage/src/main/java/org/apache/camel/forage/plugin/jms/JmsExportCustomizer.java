@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.Config;
 import org.apache.camel.forage.jms.common.ConnectionFactoryConfig;
+import org.apache.camel.forage.jms.common.ConnectionFactoryConfigEntries;
 import org.apache.camel.forage.plugin.AbstractExportCustomizer;
 import org.apache.camel.forage.plugin.ExportHelper;
 import org.slf4j.Logger;
@@ -31,40 +32,35 @@ public class JmsExportCustomizer extends AbstractExportCustomizer {
     }
 
     @Override
-    protected final String runtimeRelatedDependencies(RuntimeType runtime) {
-        return ExportHelper.getDependencies(ExportHelper.getDependencies("quarkus.jms"));
-    }
-
-    @Override
-    protected final String customDependencies(RuntimeType runtime) {
-
+    protected final String getDependencies(RuntimeType runtime) {
         System.out.println("////////////////////////////////" + runtime);
+
+        // read all values of jmsKind
+        Set<String> jmsKinds = readValuesOfProperty(ConnectionFactoryConfigEntries.JMS_KIND);
+
+        // default property
+
         return switch (runtime) {
             case main -> "todo";
             case springBoot -> "todo";
-            case quarkus -> getQuarkusDependencies();
+            case quarkus -> getQuarkusDependencies(jmsKinds);
         };
     }
 
-    private String getQuarkusDependencies() {
+    private String getQuarkusDependencies(Set<String> jmsKinds) {
 
-        // detect jms kinds
-        System.out.println("PREFIXES: " + getPrefixes());
-        Set<String> jmsKinds = getPrefixes().stream()
-                .map(prefix -> new ConnectionFactoryConfig(prefix).jmsKind())
-                .collect(Collectors.toSet());
+        String s = ExportHelper.getDependencies(RuntimeType.quarkus, ExportHelper.ResourceType.jms) + ","
+                + jmsKinds.stream()
+                        .map(jmsKind -> switch (jmsKind) {
+                            case "artemis" -> ExportHelper.getString(
+                                    "artemis",
+                                    ExportHelper.ResourceType.jms,
+                                    "Internal error: can not resolve version of quarkus.artemis.");
+                            case "ibm" -> throw new IllegalArgumentException("Ibmmq"); // todo imbmq
+                            default -> throw new IllegalArgumentException("Unknown quarkus jms kind: " + jmsKind);
+                        })
+                        .collect(Collectors.joining(","));
 
-        System.out.println("<DEFAULT>");
-        if (jmsKinds.isEmpty()) {
-            jmsKinds.add(new ConnectionFactoryConfig().jmsKind());
-        }
-
-        return jmsKinds.stream()
-                .map(jmsKind -> switch (jmsKind) {
-                    case "artemis" -> ExportHelper.getDependencies("quarkus.jms.artemis.dependencies");
-                    case "ibm" -> throw new IllegalArgumentException("Ibmmq"); // todo imbmq
-                    default -> throw new IllegalArgumentException("Unknown quarkus jms kind: " + jmsKind);
-                })
-                .collect(Collectors.joining(","));
+        return s;
     }
 }

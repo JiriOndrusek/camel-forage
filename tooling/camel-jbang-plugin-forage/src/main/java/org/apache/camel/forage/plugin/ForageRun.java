@@ -18,11 +18,13 @@ public class ForageRun extends Run {
      */
     @Override
     protected void addDependencies(String... deps) {
-        super.addDependencies(ExportHelper.getAllCustomizers()
+        var dependencies = ExportHelper.getAllCustomizers()
                 .filter(ExportCustomizer::isEnabled)
                 .map(exportCustomizer -> exportCustomizer.resolveRuntimeDependencies(RuntimeType.main))
                 .flatMap(Set::stream)
                 .distinct()
-                .toArray(String[]::new));
+                .toArray(String[]::new);
+
+        super.addDependencies(dependencies);
     }
 }

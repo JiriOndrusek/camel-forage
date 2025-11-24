@@ -3,6 +3,7 @@ package org.apache.camel.forage.plugin;
 import java.io.InputStream;
 import java.util.stream.Stream;
 import org.apache.camel.forage.core.common.ExportCustomizer;
+import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.plugin.datasource.DatasourceExportCustomizer;
 import org.apache.camel.forage.plugin.jms.JmsExportCustomizer;
 
@@ -10,6 +11,23 @@ import org.apache.camel.forage.plugin.jms.JmsExportCustomizer;
  * Utility class for jdbc configuration value processing and transformation in the Camel Forage framework.
  */
 public final class ExportHelper {
+
+    public enum ResourceType {
+        datasource("datasource-command.properties"),
+        jms("jms-command.properties"),
+        versions("versions.properties");
+
+        private final String fileName;
+
+        private ResourceType(String fileName) {
+
+            this.fileName = fileName;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+    }
 
     public static Stream<ExportCustomizer> getAllCustomizers() {
         return Stream.of(new DatasourceExportCustomizer(), new JmsExportCustomizer());
@@ -48,7 +66,8 @@ public final class ExportHelper {
      * @return the project version
      */
     public static String getQuarkusVersion() {
-        return getString("quarkus.version", "Could not determine quarkus version from properties file.");
+        return getString(
+                "quarkus.version", ResourceType.versions, "Could not determine quarkus version from properties file.");
     }
 
     /**
@@ -57,7 +76,8 @@ public final class ExportHelper {
      * @return the project version
      */
     public static String getCamelVersion() {
-        return getString("camel.version", "Could not determine quarkus version from properties file.");
+        return getString(
+                "camel.version", ResourceType.versions, "Could not determine quarkus version from properties file.");
     }
 
     /**
@@ -66,7 +86,8 @@ public final class ExportHelper {
      * @return the project version
      */
     public static String getProjectVersion() {
-        return getString("jdbc.dependency.version", "Could not determine project version from properties file.");
+        return getString(
+                "project.version", ResourceType.versions, "Could not determine project version from properties file.");
     }
 
     /**
@@ -74,18 +95,17 @@ public final class ExportHelper {
      *
      * @return the project version
      */
-    public static String getDependencies(String key) {
-        return getString(key, "Could not determine dependencies from properties file.");
+    public static String getDependencies(RuntimeType runtimeType, ResourceType resourceType) {
+        return getString(runtimeType.name(), resourceType, "Could not determine dependencies from properties file.");
     }
 
     /**
      * Reads property from the file versions.properties (which contains build time resolved versions)
      */
-    public static String getString(String key, String error) {
+    public static String getString(String key, ResourceType resourceType, String error) {
         try {
             java.util.Properties properties = new java.util.Properties();
-            try (InputStream is =
-                    ExportHelper.class.getClassLoader().getResourceAsStream("datasource-command.properties")) {
+            try (InputStream is = ExportHelper.class.getClassLoader().getResourceAsStream(resourceType.getFileName())) {
                 if (is != null) {
                     properties.load(is);
                     String version = properties.getProperty(key);

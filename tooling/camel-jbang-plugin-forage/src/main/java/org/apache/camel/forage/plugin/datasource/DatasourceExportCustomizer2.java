@@ -1,5 +1,8 @@
 package org.apache.camel.forage.plugin.datasource;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.ConfigStore;
@@ -8,10 +11,6 @@ import org.apache.camel.forage.plugin.ExportHelper;
 import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Implementation of export customizer for datasource properties.

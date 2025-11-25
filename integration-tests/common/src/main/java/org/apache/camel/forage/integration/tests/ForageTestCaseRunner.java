@@ -56,7 +56,7 @@ public class ForageTestCaseRunner extends DefaultTestCaseRunner {
 
         int totalLength = 80;
 
-        var _text = text == null ? "<plain>" : text;
+        var _text = "runtime: " + (text == null || text.isBlank() ? "camel-main" : text);
 
         String paddedText = " " + _text + " ";
         int textLength = paddedText.length();

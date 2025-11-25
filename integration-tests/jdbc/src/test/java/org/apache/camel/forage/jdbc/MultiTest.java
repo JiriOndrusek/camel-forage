@@ -49,6 +49,7 @@ public class MultiTest implements ForageIntegrationTest {
                 // required if more test are using the same route
                 .autoRemove(false)
                 .dumpIntegrationOutput(true)
+                //                .withArg("--jvm-debug", "5005")
                 .withEnvs(Map.of("DS1_JDBC_URL", postgres.getJdbcUrl(), "DS2_JDBC_URL", mysql.getJdbcUrl())));
 
         return "route";

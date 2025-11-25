@@ -1,14 +1,12 @@
 package org.apache.camel.forage.plugin.datasource;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
-import org.apache.camel.forage.core.common.ExportCustomizer;
+import java.util.stream.Collectors;
 import org.apache.camel.forage.core.common.RuntimeType;
-import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
+import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfigEntries;
+import org.apache.camel.forage.plugin.AbstractExportCustomizer;
 import org.apache.camel.forage.plugin.ExportHelper;
-import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,83 +17,43 @@ import org.slf4j.LoggerFactory;
  * Adds quarkus or spring-boot runtime dependencies, thus making export command less verbose.
  * </p>
  */
-public class DatasourceExportCustomizer implements ExportCustomizer {
+public class DatasourceExportCustomizer extends AbstractExportCustomizer {
     private static final Logger LOG = LoggerFactory.getLogger(DatasourceExportCustomizer.class);
 
     @Override
-    public boolean isEnabled() {
-        return false;
+    protected final DataSourceFactoryConfig getConfig(String prefix) {
+        return new DataSourceFactoryConfig(prefix);
     }
 
     @Override
-    public Set<String> resolveRuntimeDependencies(RuntimeType runtime) {
-        Set<String> dependencies = new HashSet<>();
-
-        //        todo refactor
-        //
-        //        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
-        //
-        //        switch (_runtime) {
-        //            case quarkus -> {
-        //                listDependencies(
-        //                        dependencies,
-        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
-        //                        "mvn:io.quarkus:quarkus-jdbc-",
-        //                        ":" + ExportHelper.getQuarkusVersion(),
-        //                        runtime);
-        //            }
-        //            case springBoot -> {
-        //                listDependencies(
-        //                        dependencies,
-        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
-        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
-        //                        ":" + ExportHelper.getProjectVersion(),
-        //                        runtime);
-        //            }
-        //            case main -> {
-        //                listDependencies(
-        //                        dependencies,
-        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
-        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
-        //                        ":" + ExportHelper.getProjectVersion(),
-        //                        runtime);
-        //            }
-        //        }
-
-        return dependencies;
+    protected final String getPrefix() {
+        return "jdbc";
     }
 
-    private static void listDependencies(
-            Set<String> dependencies,
-            String basicDependencies,
-            String depPrefix,
-            String depVersion,
-            RuntimeType runtime) {
-        dependencies.addAll(Arrays.asList(basicDependencies.split(",")));
+    @Override
+    protected final String getDependencies(RuntimeType runtime) {
 
-        try {
-            DataSourceFactoryConfig config = new DataSourceFactoryConfig();
-            Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, ExportHelper.JDBC_PREFIXES_REGEXP);
+        // read all values of jmsKind
+        Set<String> dbKinds = readValuesOfProperty(DataSourceFactoryConfigEntries.DB_KIND);
 
-            if (!prefixes.isEmpty()) {
-                for (String name : prefixes) {
-                    DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
-                    // todo get quarkus version
-                    dependencies.add(depPrefix + dsFactoryConfig.dbKind() + depVersion);
-                }
-            } else {
-                // logs a warn message, how to skip it?
-                if (Strings.isNotBlank(config.dbKind())) {
-                    dependencies.add(depPrefix + config.dbKind() + depVersion);
-                }
-            }
+        // default property
 
-            // todo better location
-            if (runtime == RuntimeType.quarkus && config.transactionEnabled()) {
-                dependencies.add("mvn:io.quarkus:quarkus-narayana-jta:" + ExportHelper.getQuarkusVersion());
-            }
-        } catch (Exception ex) {
-            // todo log error
+        String dependencies = ExportHelper.getDependencies(runtime, ExportHelper.ResourceType.datasource) + ","
+                + dbKinds.stream()
+                        .map(dbKind -> ExportHelper.getString(
+                                        runtime.name() + ".dbKind",
+                                        ExportHelper.ResourceType.datasource,
+                                        "Internal error: can not resolve dependencies for %s (%s), runtime: %s."
+                                                .formatted(ExportHelper.ResourceType.datasource, dbKind, runtime))
+                                .replaceAll("\\$\\{dbKind}", dbKind))
+                        .collect(Collectors.joining(","));
+
+        // todo better location +  add named
+        if (runtime == RuntimeType.quarkus && getConfig(null).transactionEnabled()) {
+            dependencies += "," + "mvn:io.quarkus:quarkus-narayana-jta:" + ExportHelper.getQuarkusVersion();
         }
+
+        System.out.println("Using " + dependencies + " dependencies for " + runtime);
+        return dependencies;
     }
 }

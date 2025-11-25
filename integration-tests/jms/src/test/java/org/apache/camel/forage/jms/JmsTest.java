@@ -43,7 +43,6 @@ public class JmsTest implements ForageIntegrationTest {
         runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "route.camel.yaml")
                 // required if more test are using the same route
                 //                .autoRemove(false)
-                .withArg("--jvm-debug", "5005")
                 .dumpIntegrationOutput(true)
                 .withEnvs(Collections.singletonMap(
                         "JMS_BROKER_URL", "tcp://" + artemis.getHost() + ":" + artemis.getMappedPort(61616))));
@@ -53,7 +52,7 @@ public class JmsTest implements ForageIntegrationTest {
 
     @Test
     @CitrusTest()
-    public void postgresql(ForageTestCaseRunner runner) {
+    public void transactional(ForageTestCaseRunner runner) {
         // validation of logged message
         runner.then(camel().jbang()
                 .verify()

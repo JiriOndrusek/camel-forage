@@ -22,9 +22,14 @@ public abstract class AbstractExportCustomizer implements ExportCustomizer {
 
     protected abstract String getPrefix();
 
-    protected abstract Config getConfig();
+    protected abstract <T extends Config> T getConfig(String prefix);
 
     protected abstract String getDependencies(RuntimeType runtime);
+
+    <T extends Config> T getConfig() {
+        return getConfig(null);
+    }
+    ;
 
     @Override
     public boolean isEnabled() {
@@ -53,7 +58,11 @@ public abstract class AbstractExportCustomizer implements ExportCustomizer {
         Set<String> named = ConfigStore.getInstance().readPrefixes(getConfig(), "(.+)." + getPrefix() + "..+");
         // values from default properties
         Set<Optional<String>> values = new LinkedHashSet<>(named.stream()
-                .map(n -> ConfigStore.getInstance().get(entry.asNamed(n)))
+                .map(n -> {
+                    // read prefixed config
+                    getConfig(n);
+                    return ConfigStore.getInstance().get(entry.asNamed(n));
+                })
                 .collect(Collectors.toSet()));
         // add default value
         values.add(ConfigStore.getInstance().get(entry));

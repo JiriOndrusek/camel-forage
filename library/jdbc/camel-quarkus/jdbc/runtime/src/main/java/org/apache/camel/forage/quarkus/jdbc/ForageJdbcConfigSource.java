@@ -25,9 +25,7 @@ public class ForageJdbcConfigSource implements ConfigSource {
                 DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
                 configureDs(name, dsFactoryConfig);
             }
-        } else if (!ConfigStore.getInstance()
-                .readPrefixes(config, ".*.jdbc\\..*")
-                .isEmpty()) {
+        } else if (!ConfigStore.getInstance().readPrefixes(config, "(jdbc)..*").isEmpty()) {
             ;
             configureDs("dataSource", config);
         } else {

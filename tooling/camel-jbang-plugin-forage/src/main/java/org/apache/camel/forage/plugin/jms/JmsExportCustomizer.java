@@ -22,8 +22,8 @@ public class JmsExportCustomizer extends AbstractExportCustomizer {
     private static final Logger LOG = LoggerFactory.getLogger(JmsExportCustomizer.class);
 
     @Override
-    protected final Config getConfig() {
-        return new ConnectionFactoryConfig();
+    protected final Config getConfig(String prefix) {
+        return new ConnectionFactoryConfig(prefix);
     }
 
     @Override
@@ -33,34 +33,20 @@ public class JmsExportCustomizer extends AbstractExportCustomizer {
 
     @Override
     protected final String getDependencies(RuntimeType runtime) {
-        System.out.println("////////////////////////////////" + runtime);
 
         // read all values of jmsKind
         Set<String> jmsKinds = readValuesOfProperty(ConnectionFactoryConfigEntries.JMS_KIND);
 
-        // default property
-
-        return switch (runtime) {
-            case main -> "todo";
-            case springBoot -> "todo";
-            case quarkus -> getQuarkusDependencies(jmsKinds);
-        };
-    }
-
-    private String getQuarkusDependencies(Set<String> jmsKinds) {
-
-        String s = ExportHelper.getDependencies(RuntimeType.quarkus, ExportHelper.ResourceType.jms) + ","
+        String s = ExportHelper.getDependencies(runtime, ExportHelper.ResourceType.jms) + ","
                 + jmsKinds.stream()
-                        .map(jmsKind -> switch (jmsKind) {
-                            case "artemis" -> ExportHelper.getString(
-                                    "artemis",
-                                    ExportHelper.ResourceType.jms,
-                                    "Internal error: can not resolve version of quarkus.artemis.");
-                            case "ibm" -> throw new IllegalArgumentException("Ibmmq"); // todo imbmq
-                            default -> throw new IllegalArgumentException("Unknown quarkus jms kind: " + jmsKind);
-                        })
+                        .map(jmsKind -> ExportHelper.getString(
+                                        runtime.name() + ".jmsKind",
+                                        ExportHelper.ResourceType.jms,
+                                        "Internal error: can not resolve dependencies for %s (%s), runtime: %s.")
+                                .replaceAll("\\$\\{jmsKind}", jmsKind))
                         .collect(Collectors.joining(","));
 
+        System.out.println("Using " + s + " dependencies for " + runtime);
         return s;
     }
 }

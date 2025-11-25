@@ -7,7 +7,10 @@ import org.apache.camel.forage.core.common.ExportCustomizer;
 import org.apache.camel.forage.core.common.RuntimeType;
 import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
-import org.apache.camel.forage.plugin.DataSourceExportHelper;
+import org.apache.camel.forage.plugin.ExportHelper;
+import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of export customizer for datasource properties.
@@ -17,39 +20,47 @@ import org.apache.camel.forage.plugin.DataSourceExportHelper;
  * </p>
  */
 public class DatasourceExportCustomizer implements ExportCustomizer {
+    private static final Logger LOG = LoggerFactory.getLogger(DatasourceExportCustomizer.class);
+
+    @Override
+    public boolean isEnabled() {
+        return false;
+    }
 
     @Override
     public Set<String> resolveRuntimeDependencies(RuntimeType runtime) {
         Set<String> dependencies = new HashSet<>();
 
-        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
-
-        switch (_runtime) {
-            case quarkus -> {
-                listDependencies(
-                        dependencies,
-                        DataSourceExportHelper.getQuarkusDependencies(),
-                        "mvn:io.quarkus:quarkus-jdbc-",
-                        ":" + DataSourceExportHelper.getQuarkusVersion(),
-                        runtime);
-            }
-            case springBoot -> {
-                listDependencies(
-                        dependencies,
-                        DataSourceExportHelper.getQSpringBootDependencies(),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
-                        ":" + DataSourceExportHelper.getProjectVersion(),
-                        runtime);
-            }
-            case main -> {
-                listDependencies(
-                        dependencies,
-                        DataSourceExportHelper.getPlainDependencies(),
-                        "mvn:org.apache.camel.forage:forage-jdbc-",
-                        ":" + DataSourceExportHelper.getProjectVersion(),
-                        runtime);
-            }
-        }
+        //        todo refactor
+        //
+        //        RuntimeType _runtime = runtime == null ? RuntimeType.main : runtime;
+        //
+        //        switch (_runtime) {
+        //            case quarkus -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.quarkus_jdbc),
+        //                        "mvn:io.quarkus:quarkus-jdbc-",
+        //                        ":" + ExportHelper.getQuarkusVersion(),
+        //                        runtime);
+        //            }
+        //            case springBoot -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.springBoot_jdbc),
+        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
+        //                        ":" + ExportHelper.getProjectVersion(),
+        //                        runtime);
+        //            }
+        //            case main -> {
+        //                listDependencies(
+        //                        dependencies,
+        //                        ExportHelper.getDependencies(ExportHelper.DependenciesType.plain_jdbc),
+        //                        "mvn:org.apache.camel.forage:forage-jdbc-",
+        //                        ":" + ExportHelper.getProjectVersion(),
+        //                        runtime);
+        //            }
+        //        }
 
         return dependencies;
     }
@@ -64,21 +75,24 @@ public class DatasourceExportCustomizer implements ExportCustomizer {
 
         try {
             DataSourceFactoryConfig config = new DataSourceFactoryConfig();
-            Set<String> prefixes =
-                    ConfigStore.getInstance().readPrefixes(config, DataSourceExportHelper.JDBC_PREFIXES_REGEXP);
+            Set<String> prefixes = ConfigStore.getInstance().readPrefixes(config, ExportHelper.JDBC_PREFIXES_REGEXP);
 
             if (!prefixes.isEmpty()) {
                 for (String name : prefixes) {
                     DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
-                    // todoo get quarkus version
+                    // todo get quarkus version
                     dependencies.add(depPrefix + dsFactoryConfig.dbKind() + depVersion);
                 }
             } else {
-                dependencies.add(depPrefix + config.dbKind() + depVersion);
+                // logs a warn message, how to skip it?
+                if (Strings.isNotBlank(config.dbKind())) {
+                    dependencies.add(depPrefix + config.dbKind() + depVersion);
+                }
             }
 
-            if (config.transactionEnabled()) {
-                dependencies.add("mvn:io.quarkus:quarkus-narayana-jta:" + DataSourceExportHelper.getQuarkusVersion());
+            // todo better location
+            if (runtime == RuntimeType.quarkus && config.transactionEnabled()) {
+                dependencies.add("mvn:io.quarkus:quarkus-narayana-jta:" + ExportHelper.getQuarkusVersion());
             }
         } catch (Exception ex) {
             // todo log error

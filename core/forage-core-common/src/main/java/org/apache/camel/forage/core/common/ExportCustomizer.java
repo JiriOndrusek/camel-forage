@@ -12,9 +12,7 @@ import java.util.Set;
  */
 public interface ExportCustomizer {
 
-    default boolean isEnabled() {
-        return true;
-    }
+    boolean isEnabled();
 
     Set<String> resolveRuntimeDependencies(RuntimeType runtime);
 }

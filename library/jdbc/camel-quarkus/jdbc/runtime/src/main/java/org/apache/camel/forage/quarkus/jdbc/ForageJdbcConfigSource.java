@@ -6,9 +6,11 @@ import java.util.Set;
 import org.apache.camel.forage.core.util.config.ConfigStore;
 import org.apache.camel.forage.jdbc.common.DataSourceFactoryConfig;
 import org.eclipse.microprofile.config.spi.ConfigSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ForageJdbcConfigSource implements ConfigSource {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ForageJdbcConfigSource.class);
     private static final Map<String, String> configuration = new HashMap<>();
 
     static {
@@ -23,8 +25,13 @@ public class ForageJdbcConfigSource implements ConfigSource {
                 DataSourceFactoryConfig dsFactoryConfig = new DataSourceFactoryConfig(name);
                 configureDs(name, dsFactoryConfig);
             }
-        } else {
+        } else if (!ConfigStore.getInstance()
+                .readPrefixes(config, ".*.jdbc\\..*")
+                .isEmpty()) {
+            ;
             configureDs("dataSource", config);
+        } else {
+            LOG.trace("No jdbc config found.");
         }
     }
 

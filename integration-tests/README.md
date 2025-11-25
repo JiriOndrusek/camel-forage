@@ -98,7 +98,11 @@ Whole example:
   runner.when(forageRun("route", "forage-datasource-factory.properties", "route.camel.yaml")
                 .dumpIntegrationOutput(true));  
   ```
-  
+* In case you'd like to debug the camel route from the background, add following parameter to the runner execution:  
+  ```
+  .withArg("--jvm-debug", "5005")
+  ```
+  The background camel process waits and listens on a port 5005 for java remote debug,
 * If you need to find the runtime folder of the Camel process (from the background), please look into `target/test-classes/${full-test-class-path}` 
 
 * Be aware that test for runtimes (`quarkus` or `spring-boot`) runs in a sub-folder with exported application.

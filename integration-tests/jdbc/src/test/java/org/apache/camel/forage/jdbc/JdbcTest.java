@@ -72,6 +72,7 @@ public class JdbcTest implements ForageIntegrationTest {
                 .addResource(classResource("MyAggregationStrategy.java"))
                 // required if more test are using the same route
                 .autoRemove(false)
+                //                .withArg("--jvm-debug", "5005")
                 .withEnvs(Collections.singletonMap("JDBC_URL", postgres.getJdbcUrl())));
 
         return INTEGRATION_NAME;

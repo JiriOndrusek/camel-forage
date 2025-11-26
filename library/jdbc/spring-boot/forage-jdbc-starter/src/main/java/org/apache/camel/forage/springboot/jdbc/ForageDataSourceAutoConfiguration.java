@@ -121,7 +121,8 @@ public class ForageDataSourceAutoConfiguration implements BeanFactoryAware {
                         "Expected exactly 1 DataSource provider, but found {}: {}",
                         providers.size(),
                         providers.stream().map(p -> p.type().getName()).toList());
-                throw new IllegalArgumentException("No dataSource implementation is present in the classpath");
+                //                throw new IllegalArgumentException("No dataSource implementation is present in the
+                // classpath");
             }
         }
     }

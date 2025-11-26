@@ -55,6 +55,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class ConfigHelper {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigHelper.class);
+    private static final String DEFAULT_PROPERTY_REGEXP = "(%s)..+";
+    private static final String NAMED_PROPERTY_REGEXP = "(.+).%s..+";
 
     /**
      * Private constructor to prevent instantiation of this utility class.
@@ -268,11 +270,19 @@ public final class ConfigHelper {
     }
 
     /**
-     * Returns list of getter method, which are methods with no parameter and return type != void
+     * Returns list of getter method - methods with no parameter and return type != void
      */
     public static List<Method> getGetterMethods(Class<?> type) {
         return Arrays.stream(type.getDeclaredMethods())
                 .filter(m -> m.getParameterCount() == 0 && !m.getReturnType().equals(void.class))
                 .toList();
+    }
+
+    public static String getDefaultPropertyRegexp(String prefix) {
+        return DEFAULT_PROPERTY_REGEXP.formatted(prefix);
+    }
+
+    public static String getNamedPropertyRegexp(String prefix) {
+        return NAMED_PROPERTY_REGEXP.formatted(prefix);
     }
 }

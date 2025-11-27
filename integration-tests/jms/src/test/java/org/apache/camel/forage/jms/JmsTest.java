@@ -70,7 +70,10 @@ public class JmsTest implements ForageIntegrationTest {
         return "SET AUTHREC PROFILE('*') PRINCIPAL('" + USER + "') OBJTYPE(TOPIC) AUTHADD(ALL)\n"
                 + "SET AUTHREC PROFILE('*') PRINCIPAL('" + USER + "') OBJTYPE(QUEUE) AUTHADD(ALL)\n"
                 + "SET AUTHREC PROFILE('SYSTEM.DEFAULT.MODEL.QUEUE') OBJTYPE(QUEUE) PRINCIPAL('" + USER
-                + "') AUTHADD(ALL)";
+                + "') AUTHADD(ALL)\n"
+                + "SET AUTHREC PROFILE('input.queue') PRINCIPAL('app') OBJTYPE(QMGR) AUTHADD(CONNECT,INQ)\n"
+                + "SET AUTHREC PROFILE('input.queue') PRINCIPAL('app') OBJTYPE(QUEUE) AUTHADD(PUT,GET,INQ,BROWSE)\n"
+                + "SET AUTHREC PROFILE('output.queue') PRINCIPAL('app') OBJTYPE(QUEUE) AUTHADD(PUT,GET,INQ,BROWSE)";
     }
 
     @Override
@@ -78,11 +81,15 @@ public class JmsTest implements ForageIntegrationTest {
         // create queueu
         IBMMQDestinations destinations =
                 new IBMMQDestinations(ibmmq.getHost(), ibmmq.getMappedPort(IBMMQ_PORT), QUEUE_MANAGER_NAME);
-        destinations.createQueue("xa");
+        destinations.createQueue("input.queue");
+        destinations.createQueue("output.queue");
+        destinations.createQueue("DLQ");
+        destinations.createQueue("DLQ2");
 
         // running jbang forage run with required resources and required runtime
-        runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "JmsRoutes.java")
-                .addResource(this.classResource("DummyXAResource.java"))
+        //        runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "JmsRoutes.java")
+        runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "route.camel.yaml")
+                //                .addResource(this.classResource("DummyXAResource.java"))
                 .dumpIntegrationOutput(true)
                 //                .withArg("--jvm-debug", "5005")
                 .withEnvs(Collections.singletonMap(

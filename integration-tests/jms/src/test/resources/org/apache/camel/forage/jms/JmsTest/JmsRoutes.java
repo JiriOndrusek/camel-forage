@@ -14,7 +14,7 @@ public class JmsRoutes extends RouteBuilder {
     public void configure() throws Exception {
 
 
-        from("jms:queue:xa")
+        from("jms:queue:input.queue")
 //        from("jms:queue:input.queue?transactionManager=#jtaTransactionManager")
                 .routeId("xaConsumer")
                 .log("Received message ${body}");
@@ -22,13 +22,8 @@ public class JmsRoutes extends RouteBuilder {
         from("timer:java?period=1000")
                 .routeId("xa")
                 .transacted()
-                .to("jms:queue:xa?disableReplyTo=true")
-                        .choice()
-                .when(body().startsWith("fail"))
-                .log("Forced to rollback")
-                .otherwise()
-                .log("Message added: ${body}")
-                .endChoice();
+                .to("jms:queue:input.queue?disableReplyTo=true")
+                .log("Message added: ${body}");
     }
 
 }

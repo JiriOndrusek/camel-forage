@@ -11,6 +11,9 @@
             id: set-message
             simple:
               expression: Transactional message
+        - log:
+            id: log-1795
+            message: "Message sent: ${body}"
         - to:
             id: send-to-input
             uri: jms
@@ -63,7 +66,7 @@
                       exceptionType: java.lang.RuntimeException
                       message: Simulated processing error
                 simple:
-                  expression: ${random(0,10)} > 7
+                  expression: ${random(0,10)} > 5
 - route:
     id: output-consumer-route
     from:

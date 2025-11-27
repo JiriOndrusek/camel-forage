@@ -1,9 +1,3 @@
-- errorHandler:
-    deadLetterChannel:
-      deadLetterUri: jms:DLQ
-      redeliveryPolicy:
-        maximumRedeliveries: 2
-      useOriginalBody: true
 - route:
     id: producer-route
     from:
@@ -63,12 +57,13 @@
               - steps:
                   - log:
                       id: log-error
-                      message: Simulating error - message will be rolled back
+                      message: "Simulating error - message will be rolled back "
                   - throwException:
                       id: throw-error
                       exceptionType: java.lang.RuntimeException
                       message: Simulated processing error
-                simple: ${random(0,10)} > 7
+                simple:
+                  expression: ${random(0,10)} > 7
 - route:
     id: output-consumer-route
     from:
@@ -93,3 +88,9 @@
         - log:
             id: log-dlq
             message: "Message sent to DLQ after max redeliveries: ${body}"
+- errorHandler:
+    deadLetterChannel:
+      deadLetterUri: jms:DLQ
+      redeliveryPolicy:
+        maximumRedeliveries: 2
+      useOriginalBody: true

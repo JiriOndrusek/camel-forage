@@ -1,6 +1,7 @@
 package org.apache.camel.forage.jms;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 import org.apache.camel.forage.integration.tests.ForageIntegrationTest;
 import org.apache.camel.forage.integration.tests.ForageTestCaseRunner;
@@ -8,11 +9,15 @@ import org.apache.camel.forage.integration.tests.IntegrationTestSetupExtension;
 import org.citrusframework.annotations.CitrusTest;
 import org.citrusframework.junit.jupiter.CitrusSupport;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.activemq.ArtemisContainer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.images.builder.Transferable;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -25,22 +30,69 @@ public class JmsTest implements ForageIntegrationTest {
 
     static final String ARTEMIS_IMAGE_NAME =
             ConfigProvider.getConfig().getValue("activemq.artemis.container.image", String.class);
+    private static final String IBMMQ_IMAGE_NAME =
+            ConfigProvider.getConfig().getValue("ibmmq.container.image", String.class);
     public static final String INTEGRATION_NAME = "jms-routes";
+    private static final int IBMMQ_PORT = 1414;
+    private static final String QUEUE_MANAGER_NAME = "QM1";
+    private static final String USER = "app";
+    private static final String PASSWORD = "passw0rd";
+    private static final String MESSAGING_CHANNEL = "DEV.APP.SVRCONN";
+    private static final String MQSC_COMMAND_FILE_NAME = "99-auth.mqsc";
+    private static final String MQSC_FILE_CONTAINER_PATH = "/etc/mqm/" + MQSC_COMMAND_FILE_NAME;
+
+    //    @Container
+    //    static ArtemisContainer artemis = new ArtemisContainer(
+    //
+    // DockerImageName.parse(ARTEMIS_IMAGE_NAME).asCompatibleSubstituteFor("apache/activemq-artemis"))
+    //            .withExposedPorts(61616, 8161)
+    //            .withUser("artemis")
+    //            .withPassword("artemis");
 
     @Container
-    static ArtemisContainer artemis = new ArtemisContainer(
-                    DockerImageName.parse(ARTEMIS_IMAGE_NAME).asCompatibleSubstituteFor("apache/activemq-artemis"))
-            .withExposedPorts(61616, 8161)
-            .withUser("artemis")
-            .withPassword("artemis");
+    static GenericContainer ibmmq = new GenericContainer<>(DockerImageName.parse(IBMMQ_IMAGE_NAME))
+            .withExposedPorts(1414)
+            .withEnv(Map.of(
+                    "LICENSE", System.getProperty("ibm.mq.container.license"), "MQ_QMGR_NAME", QUEUE_MANAGER_NAME))
+            .withCopyToContainer(Transferable.of(PASSWORD), "/run/secrets/mqAdminPassword")
+            .withCopyToContainer(Transferable.of(PASSWORD), "/run/secrets/mqAppPassword")
+            .withCopyToContainer(Transferable.of(mqscConfig()), MQSC_FILE_CONTAINER_PATH)
+            // AMQ5806I is a message code for queue manager start
+            .waitingFor(Wait.forLogMessage(".*AMQ5806I.*", 1));
+
+    /**
+     * By default, the user does have access just to predefined queues, this will add permissions to access
+     * all standard queues + topics and a special system queue.
+     *
+     * @return mqsc config string
+     */
+    private static String mqscConfig() {
+        return "SET AUTHREC PROFILE('*') PRINCIPAL('" + USER + "') OBJTYPE(TOPIC) AUTHADD(ALL)\n"
+                + "SET AUTHREC PROFILE('*') PRINCIPAL('" + USER + "') OBJTYPE(QUEUE) AUTHADD(ALL)\n"
+                + "SET AUTHREC PROFILE('SYSTEM.DEFAULT.MODEL.QUEUE') OBJTYPE(QUEUE) PRINCIPAL('" + USER
+                + "') AUTHADD(ALL)";
+    }
 
     @Override
     public String runBeforeAll(ForageTestCaseRunner runner, Consumer<AutoCloseable> afterAll) {
+        // create queueu
+        IBMMQDestinations destinations =
+                new IBMMQDestinations(ibmmq.getHost(), ibmmq.getMappedPort(IBMMQ_PORT), QUEUE_MANAGER_NAME);
+        destinations.createQueue("xa");
+
         // running jbang forage run with required resources and required runtime
-        runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "route.camel.yaml")
+        runner.when(forageRun(INTEGRATION_NAME, "forage-connectionfactory.properties", "JmsRoutes.java")
+                .addResource(this.classResource("DummyXAResource.java"))
                 .dumpIntegrationOutput(true)
+                //                .withArg("--jvm-debug", "5005")
                 .withEnvs(Collections.singletonMap(
-                        "JMS_BROKER_URL", "tcp://" + artemis.getHost() + ":" + artemis.getMappedPort(61616))));
+                        "JMS_BROKER_URL",
+                        "mq://%s:%d/%s/%s"
+                                .formatted(
+                                        ibmmq.getHost(),
+                                        ibmmq.getMappedPort(1414),
+                                        MESSAGING_CHANNEL,
+                                        QUEUE_MANAGER_NAME))));
 
         return INTEGRATION_NAME;
     }
@@ -48,9 +100,21 @@ public class JmsTest implements ForageIntegrationTest {
     /**
      * Test based on <a href="https://github.com/megacamelus/forage-examples/tree/main/jms/transactional">JMS transactional example</a>.
      */
+    @Disabled
     @Test
     @CitrusTest()
     public void artemisTransactional(ForageTestCaseRunner runner) {
+        // validation of logged message
+        runner.then(camel().jbang()
+                .verify()
+                .integration(INTEGRATION_NAME)
+                .waitForLogMessage("Successfully processed message: Transactional message"));
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "ibm.mq.container.license", matches = "accept")
+    @CitrusTest()
+    public void ibmMqTransactional(ForageTestCaseRunner runner) {
         // validation of logged message
         runner.then(camel().jbang()
                 .verify()

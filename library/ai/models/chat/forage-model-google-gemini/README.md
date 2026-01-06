@@ -90,7 +90,7 @@ google.model.name=gemini-pro
 ### Basic Setup
 
 ```java
-import org.apache.camel.forage.models.chat.google.GoogleGeminiProvider;
+import io.kaoto.forage.models.chat.google.GoogleGeminiProvider;
 import dev.langchain4j.model.chat.ChatModel;
 
 // Create provider (configuration is loaded automatically)

@@ -179,7 +179,7 @@ openai.log.responses=false
 ### Java Code Usage
 
 ```java
-import org.apache.camel.forage.models.chat.openai.OpenAIProvider;
+import io.kaoto.forage.models.chat.openai.OpenAIProvider;
 import dev.langchain4j.model.chat.ChatModel;
 
 // Create provider (configuration is loaded automatically)

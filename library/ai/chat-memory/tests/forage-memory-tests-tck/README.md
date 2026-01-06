@@ -29,7 +29,7 @@ Add the TCK as a test dependency in your memory implementation module:
 
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-memory-tests-tck</artifactId>
     <version>${project.version}</version>
     <scope>test</scope>

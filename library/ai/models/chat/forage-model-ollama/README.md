@@ -12,7 +12,7 @@ Add this dependency to your Maven project:
 
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-model-ollama</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>

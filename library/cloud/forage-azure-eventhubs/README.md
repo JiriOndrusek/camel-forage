@@ -109,16 +109,16 @@ java -Dazure.eventhubs.eventhub.name=default-hub \
 ### Programmatic Usage
 
 ```java
-import org.apache.camel.forage.core.cloud.EventHubProducerProvider;
+import cloud.core.io.kaoto.forage.EventHubProducerProvider;
 import com.azure.messaging.eventhubs.EventHubProducerAsyncClient;
 
 // Default configuration
 EventHubProducerProvider provider = new AzureEventHubsProvider();
-EventHubProducerAsyncClient client = provider.create();
+        EventHubProducerAsyncClient client = provider.create();
 
-// Named configuration
-EventHubProducerAsyncClient analyticsClient = provider.create("analytics");
-EventHubProducerAsyncClient loggingClient = provider.create("logging");
+        // Named configuration
+        EventHubProducerAsyncClient analyticsClient = provider.create("analytics");
+        EventHubProducerAsyncClient loggingClient = provider.create("logging");
 ```
 
 ### Using with Apache Camel
@@ -143,7 +143,7 @@ Maven:
 
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-azure-eventhubs</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>

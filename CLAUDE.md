@@ -83,9 +83,9 @@ camel-forage/
 ### 1. ServiceLoader Discovery
 
 Components are discovered via Java ServiceLoader:
-- `org.apache.camel.forage.core.ai.ModelProvider` - Chat models
-- `org.apache.camel.forage.core.ai.ChatMemoryBeanProvider` - Memory providers
-- `org.apache.camel.forage.core.vectordb.EmbeddingStoreProvider` - Vector databases
+- `ai.core.io.kaoto.forage.ModelProvider` - Chat models
+- `ai.core.io.kaoto.forage.ChatMemoryBeanProvider` - Memory providers
+- `vectordb.core.io.kaoto.forage.EmbeddingStoreProvider` - Vector databases
 
 ### 2. BeanProvider Pattern
 
@@ -169,7 +169,7 @@ Create `META-INF/services/<interface-name>` files listing implementation classes
 ## Naming Conventions
 
 - **Artifacts**: `forage-<category>-<technology>` (e.g., `forage-model-openai`)
-- **Packages**: `org.apache.camel.forage.<category>.<technology>`
+- **Packages**: `io.kaoto.forage.<category>.<technology>`
 - **Config env vars**: `FORAGE_<TECHNOLOGY>_<PROPERTY>` (e.g., `FORAGE_OPENAI_API_KEY`)
 - **Config properties**: `forage.<technology>.<property>` (e.g., `forage.openai.api.key`)
 

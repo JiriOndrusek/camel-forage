@@ -41,16 +41,16 @@ Create configuration files for each component:
 multi.agent.names=google,ollama
 
 # Google Agent Configuration
-google.provider.agent.class=org.apache.camel.forage.agent.simple.SimpleAgent
-google.provider.model.factory.class=org.apache.camel.forage.models.chat.google.GoogleGeminiProvider
+google.provider.agent.class=simple.agent.io.kaoto.forage.SimpleAgent
+google.provider.model.factory.class=google.chat.models.io.kaoto.forage.GoogleGeminiProvider
 google.provider.features=memory
-google.provider.features.memory.factory.class=org.apache.camel.forage.memory.chat.messagewindow.MessageWindowChatMemoryBeanProvider
+google.provider.features.memory.factory.class=messagewindow.chat.memory.io.kaoto.forage.MessageWindowChatMemoryBeanProvider
 
 # Ollama Agent Configuration
-ollama.provider.agent.class=org.apache.camel.forage.agent.memoryless.MemorylessAgent
-ollama.provider.model.factory.class=org.apache.camel.forage.models.chat.ollama.OllamaProvider
+ollama.provider.agent.class=io.kaoto.forage.agent.memoryless.MemorylessAgent
+ollama.provider.model.factory.class=ollama.chat.models.io.kaoto.forage.OllamaProvider
 ollama.provider.features=memoryless
-ollama.provider.features.memory.factory.class=org.apache.camel.forage.memory.chat.messagewindow.MessageWindowChatMemoryBeanProvider
+ollama.provider.features.memory.factory.class=messagewindow.chat.memory.io.kaoto.forage.MessageWindowChatMemoryBeanProvider
 ```
 
 #### forage-model-google-gemini.properties
@@ -125,7 +125,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:dynamic
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - log: "Response from ${header.AgentType}: ${body}"
 ```
 
@@ -143,7 +143,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:dynamic
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - log: "Response from ${exchangeProperty.agent.name}: ${body}"
 ```
 
@@ -161,7 +161,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:dynamic
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - log: "Response from ${variable.selectedAgent}: ${body}"
 ```
 
@@ -186,7 +186,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:test
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
               tags: users
         - log: ${body}
 
@@ -225,7 +225,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:google-test
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
               tags: users
         - log: "Google Agent Response: ${body}"
 
@@ -247,7 +247,7 @@ multi.agent.id.source.variable=selectedAgent
         - to:
             uri: langchain4j-agent:ollama-test
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - log: "Ollama Agent Response: ${body}"
 
 # Shared tools available to all agents
@@ -279,10 +279,10 @@ multi.agent.id.source.variable=selectedAgent
 
 ```bash
 camel run agent.camel.yaml \
-  --dep=mvn:org.apache.camel.forage:forage-agent-factories:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-agent:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-memory-message-window:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-model-google-gemini:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-agent-factories:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-agent:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-memory-message-window:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-model-google-gemini:1.0-SNAPSHOT \
   --dep=camel-langchain4j-agent
 ```
 
@@ -290,11 +290,11 @@ camel run agent.camel.yaml \
 
 ```bash
 camel run multi-agent.camel.yaml \
-  --dep=mvn:org.apache.camel.forage:forage-agent-factories:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-agent:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-memory-message-window:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-model-google-gemini:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-model-ollama:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-agent-factories:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-agent:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-memory-message-window:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-model-google-gemini:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-model-ollama:1.0-SNAPSHOT \
   --dep=camel-langchain4j-agent
 ```
 
@@ -374,8 +374,8 @@ multi.agent.id.source.property=ticket.priority
 
 # Configure agents
 multi.agent.names=basic,advanced
-basic.provider.model.factory.class=org.apache.camel.forage.models.chat.ollama.OllamaProvider
-advanced.provider.model.factory.class=org.apache.camel.forage.models.chat.google.GoogleGeminiProvider
+basic.provider.model.factory.class=ollama.chat.models.io.kaoto.forage.OllamaProvider
+advanced.provider.model.factory.class=google.chat.models.io.kaoto.forage.GoogleGeminiProvider
 ```
 
 #### **User Preference-Based Routing**
@@ -403,11 +403,11 @@ Chain agents to create sophisticated workflows:
         - to:
             uri: langchain4j-agent:analysis
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - to:
             uri: langchain4j-agent:synthesis  
             parameters:
-              agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+              agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
         - log: "Final result: ${body}"
 ```
 
@@ -429,13 +429,13 @@ Use Camel's choice component for dynamic agent selection:
                   - to:
                       uri: langchain4j-agent:advanced
                       parameters:
-                        agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+                        agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
             otherwise:
               steps:
                 - to:
                     uri: langchain4j-agent:simple
                     parameters:
-                      agentFactory: "#class:org.apache.camel.forage.agent.factory.MultiAgentFactory"
+                      agentFactory: "#class:factory.agent.io.kaoto.forage.MultiAgentFactory"
 ```
 
 ### Memory Management
@@ -444,10 +444,10 @@ Configure different memory strategies per agent:
 
 ```properties
 # Long-term memory agent
-agent1.provider.features.memory.factory.class=org.apache.camel.forage.memory.chat.redis.RedisChatMemoryFactory
+agent1.provider.features.memory.factory.class=io.kaoto.forage.memory.chat.redis.RedisChatMemoryFactory
 
 # Short-term memory agent
-agent2.provider.features.memory.factory.class=org.apache.camel.forage.memory.chat.messagewindow.MessageWindowChatMemoryBeanProvider
+agent2.provider.features.memory.factory.class=messagewindow.chat.memory.io.kaoto.forage.MessageWindowChatMemoryBeanProvider
 
 # Stateless agent
 agent3.provider.features=memoryless
@@ -478,14 +478,14 @@ For multi-agent configurations, use prefixed guardrails for each agent:
 multi.agent.names=secure,standard
 
 # Secure agent with strict guardrails
-secure.provider.agent.class=org.apache.camel.forage.agent.simple.SimpleAgent
-secure.provider.model.factory.class=org.apache.camel.forage.models.chat.openai.OpenAIProvider
+secure.provider.agent.class=simple.agent.io.kaoto.forage.SimpleAgent
+secure.provider.model.factory.class=openai.chat.models.io.kaoto.forage.OpenAIProvider
 secure.guardrails.input.classes=com.example.StrictContentFilter,com.example.AuthorizationGuardrail
 secure.guardrails.output.classes=com.example.PiiRedactionGuardrail,com.example.ComplianceGuardrail
 
 # Standard agent with minimal guardrails
-standard.provider.agent.class=org.apache.camel.forage.agent.simple.SimpleAgent
-standard.provider.model.factory.class=org.apache.camel.forage.models.chat.ollama.OllamaProvider
+standard.provider.agent.class=simple.agent.io.kaoto.forage.SimpleAgent
+standard.provider.model.factory.class=ollama.chat.models.io.kaoto.forage.OllamaProvider
 standard.guardrails.output.classes=com.example.BasicOutputFilter
 ```
 
@@ -541,11 +541,11 @@ Support multiple instances with prefixes:
 
 ```properties
 # Default configuration
-provider.model.factory.class=org.apache.camel.forage.models.chat.openai.OpenAIProvider
+provider.model.factory.class=openai.chat.models.io.kaoto.forage.OpenAIProvider
 
 # Named configurations
-google.provider.model.factory.class=org.apache.camel.forage.models.chat.google.GoogleGeminiProvider
-ollama.provider.model.factory.class=org.apache.camel.forage.models.chat.ollama.OllamaProvider
+google.provider.model.factory.class=google.chat.models.io.kaoto.forage.GoogleGeminiProvider
+ollama.provider.model.factory.class=ollama.chat.models.io.kaoto.forage.OllamaProvider
 ```
 
 ## Troubleshooting

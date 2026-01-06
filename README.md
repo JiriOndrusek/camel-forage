@@ -24,25 +24,25 @@ Add the desired modules to your project. For example, to use the default agent f
 ```xml
 <!--This component provides support for OpenAI models (GPT-3.5, GPT-4, etc.)-->
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>camel-forage-model-open-ai</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 <!--This component provides support for the message window chat memory -->
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-memory-message-window</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 <!--This component adds agent factories for single and multi-agent systems -->
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-agent-factories</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 <!--This component adds the composable agent implementation -->
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-agent</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -54,10 +54,10 @@ Simply reference the bean class in your Camel route:
 
 ```java
 from("direct:start")
-    .to("langchain4j-agent:test-memory-agent?agentFactory=#class:org.apache.camel.forage.agent.factory.MultiAgentFactory");
+    .to("langchain4j-agent:test-memory-agent?agentFactory=#class:factory.agent.io.kaoto.forage.MultiAgentFactory");
 ```
 
-The `org.apache.camel.forage.agent.factory.MultiAgentFactory` class is a factory that builds AI agents automatically based on the dependencies available on the classpath and configured through properties. It supports both single-agent and multi-agent configurations.
+The `factory.agent.io.kaoto.forage.MultiAgentFactory` class is a factory that builds AI agents automatically based on the dependencies available on the classpath and configured through properties. It supports both single-agent and multi-agent configurations.
 
 ## Available Modules
 
@@ -148,12 +148,12 @@ camel infra run postgres
 2. **Add dependencies to your project:**
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-jdbc-factories</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-jdbc-postgres</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -168,7 +168,7 @@ public class Test extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("timer:java?period=1000")
-                .to("sql:select * from acme?dataSourceFactory=#class:org.apache.camel.forage.jdbc.factory.DefaultDataSourceFactory")
+                .to("sql:select * from acme?dataSourceFactory=#class:io.kaoto.forage.jdbc.factory.DefaultDataSourceFactory")
                 .log("${body}");
     }
 }
@@ -177,8 +177,8 @@ public class Test extends RouteBuilder {
 4. **Run with JBang:**
 ```bash
 camel run Test.java \
-  --dep=mvn:org.apache.camel.forage:forage-jdbc-factories:1.0-SNAPSHOT \
-  --dep=mvn:org.apache.camel.forage:forage-jdbc-postgres:1.0-SNAPSHOT
+  --dep=mvn:io.kaoto.forage:forage-jdbc-factories:1.0-SNAPSHOT \
+  --dep=mvn:io.kaoto.forage:forage-jdbc-postgres:1.0-SNAPSHOT
 ```
 
 This provides a fully configured, pooled data source out-of-the-box with sensible defaults.
@@ -268,7 +268,7 @@ Example for a memory-less agent.
 ```java
 from("timer:ai?period=30000")
     .setBody(constant("Tell me a joke"))
-    .to("langchain4j-agent:joke-agent?agentFactory=#class:org.apache.camel.forage.agent.factory.MultiAgentFactory")
+    .to("langchain4j-agent:joke-agent?agentFactory=#class:factory.agent.io.kaoto.forage.MultiAgentFactory")
     .log("AI Response: ${body}");
 ```
 
@@ -279,7 +279,7 @@ public class MyRoutes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("direct:chat")
-            .to("langchain4j-agent:chat-agent?agentFactory=#class:org.apache.camel.forage.agent.factory.MultiAgentFactory")
+            .to("langchain4j-agent:chat-agent?agentFactory=#class:factory.agent.io.kaoto.forage.MultiAgentFactory")
             .log("Chat response: ${body}");
     }
 }

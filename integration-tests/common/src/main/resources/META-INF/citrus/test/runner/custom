@@ -1,1 +1,1 @@
-type=org.apache.camel.forage.integration.tests.ForageTestCaseRunnerProvider
+type=tests.integration.io.kaoto.forage.ForageTestCaseRunnerProvider

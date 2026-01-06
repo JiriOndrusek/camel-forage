@@ -80,7 +80,7 @@ The provider is automatically discovered via ServiceLoader. Use it in your Camel
 
 ```java
 from("direct:chat")
-    .to("langchain4j-agent:my-agent?agentFactory=#class:org.apache.camel.forage.agent.factory.MultiAgentFactory")
+    .to("langchain4j-agent:my-agent?agentFactory=#class:factory.agent.io.kaoto.forage.MultiAgentFactory")
     .log("Response: ${body}");
 ```
 

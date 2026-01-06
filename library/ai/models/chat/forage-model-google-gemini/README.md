@@ -12,7 +12,7 @@ Add this dependency to your Maven project:
 
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>forage-model-google-gemini</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -90,14 +90,14 @@ google.model.name=gemini-pro
 ### Basic Setup
 
 ```java
-import org.apache.camel.forage.models.chat.google.GoogleGeminiProvider;
+import google.chat.models.io.kaoto.forage.GoogleGeminiProvider;
 import dev.langchain4j.model.chat.ChatModel;
 
 // Create provider (configuration is loaded automatically)
 GoogleGeminiProvider provider = new GoogleGeminiProvider();
 
-// Get configured chat model
-ChatModel model = provider.newModel();
+        // Get configured chat model
+        ChatModel model = provider.newModel();
 
 // Use the model for chat operations
 // (specific usage depends on your Camel Forage setup)

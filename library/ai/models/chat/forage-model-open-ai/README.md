@@ -12,7 +12,7 @@ Add this dependency to your Maven project:
 
 ```xml
 <dependency>
-    <groupId>org.apache.camel.forage</groupId>
+    <groupId>io.kaoto.forage</groupId>
     <artifactId>camel-forage-model-open-ai</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -179,14 +179,14 @@ openai.log.responses=false
 ### Java Code Usage
 
 ```java
-import org.apache.camel.forage.models.chat.openai.OpenAIProvider;
+import openai.chat.models.io.kaoto.forage.OpenAIProvider;
 import dev.langchain4j.model.chat.ChatModel;
 
 // Create provider (configuration is loaded automatically)
 OpenAIProvider provider = new OpenAIProvider();
 
-// Get configured chat model
-ChatModel model = provider.newModel();
+        // Get configured chat model
+        ChatModel model = provider.newModel();
 
 // Use the model for chat operations
 // (specific usage depends on your Camel Forage setup)

@@ -15,6 +15,7 @@
     <name>Forage :: Library :: AI :: Models :: Chat</name>
 
     <modules>
+        <module>forage-model-camel-quarkus</module>
         <module>forage-model-anthropic</module>
         <module>forage-model-azure-openai</module>
         <module>forage-model-bedrock</module>

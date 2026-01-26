@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>forage-model-camel-quarkus-deployment</artifactId>
-    <name>Forage :: todo</name>
+    <name>Forage :: Model :: Camel Quarkus :: Deployment</name>
 
     <dependencies>
 
@@ -33,6 +33,7 @@
         <dependency>
             <groupId>io.kaoto.forage</groupId>
             <artifactId>forage-model-camel-quarkus</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>

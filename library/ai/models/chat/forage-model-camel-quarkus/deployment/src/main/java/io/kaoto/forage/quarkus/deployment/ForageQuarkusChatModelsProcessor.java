@@ -1,7 +1,8 @@
-package io.kaoto.forage.quarkus.jdbc.deployment;
+package io.kaoto.forage.quarkus.deployment;
 
 import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.chat.ChatModel;
+import io.kaoto.forage.quarkus.ForageQuarkusChatModelsRecorder;
 import io.quarkus.arc.deployment.BeanDiscoveryFinishedBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -10,7 +11,7 @@ import io.quarkus.deployment.annotations.Record;
 import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
 
 //
-//@ForageFactory(
+// @ForageFactory(
 //        value = "DataSource (Quarkus)",
 //        components = {"camel-sql", "camel-jdbc"},
 //        description = "Native JDBC DataSource for Quarkus with compile-time optimization and repository support",
@@ -18,25 +19,23 @@ import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
 //        autowired = true,
 //        configClass = DataSourceFactoryConfig.class,
 //        variant = FactoryVariant.QUARKUS)
-public class ForageQuarkusChatModelsJdbcProcessor {
+public class ForageQuarkusChatModelsProcessor {
 
     @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
-        void quarkusChatModels(QuarkusForageChatModelsRecorder recorder,
-                                BuildProducer<CamelRuntimeBeanBuildItem> camelRuntimeBean,
-                                BeanDiscoveryFinishedBuildItem discovery) {
+    void quarkusChatModels(
+            ForageQuarkusChatModelsRecorder recorder,
+            BuildProducer<CamelRuntimeBeanBuildItem> camelRuntimeBean,
+            BeanDiscoveryFinishedBuildItem discovery) {
 
-        discovery.beanStream()
+        discovery
+                .beanStream()
                 .filter(bean -> bean.getTypes().contains(ChatModel.class))
                 .forEach(bean -> {
-
-
-                    camelRuntimeBean.produce(
-                            new CamelRuntimeBeanBuildItem(
-                                    bean.getName() + "ForageModelProvider",
-                                    ModelProvider.class.getName(),
-                                    recorder.createModelProvider(bean.getName())))
-                                    .done();
+                    camelRuntimeBean.produce(new CamelRuntimeBeanBuildItem(
+                            bean.getName() + "ForageModelProvider",
+                            ModelProvider.class.getName(),
+                            recorder.createModelProvider(bean.getName())));
                 });
     }
 }

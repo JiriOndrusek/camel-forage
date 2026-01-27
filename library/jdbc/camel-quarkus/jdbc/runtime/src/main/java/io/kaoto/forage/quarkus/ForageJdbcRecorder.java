@@ -1,4 +1,4 @@
-package io.kaoto.forage.quarkus.jdbc;
+package io.kaoto.forage.quarkus;
 
 import io.kaoto.forage.jdbc.common.DataSourceFactoryConfig;
 import io.kaoto.forage.jdbc.common.aggregation.ForageAggregationRepository;

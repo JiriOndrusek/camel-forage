@@ -1,4 +1,4 @@
-package io.kaoto.forage.quarkus.jdbc.deployment;
+package io.kaoto.forage.quarkus.deployment;
 
 import io.kaoto.forage.core.annotations.FactoryType;
 import io.kaoto.forage.core.annotations.FactoryVariant;
@@ -6,7 +6,7 @@ import io.kaoto.forage.core.annotations.ForageFactory;
 import io.kaoto.forage.core.util.config.ConfigHelper;
 import io.kaoto.forage.core.util.config.ConfigStore;
 import io.kaoto.forage.jdbc.common.DataSourceFactoryConfig;
-import io.kaoto.forage.quarkus.jdbc.ForageJdbcRecorder;
+import io.kaoto.forage.quarkus.ForageJdbcRecorder;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;

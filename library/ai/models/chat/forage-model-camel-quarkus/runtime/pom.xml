@@ -9,8 +9,8 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>forage-model-camel-quarkusjdbc</artifactId>
-    <name>Forage :: todo</name>
+    <artifactId>forage-model-camel-quarkus</artifactId>
+    <name>Forage :: Model :: Camel Quarkus</name>
 
     <dependencies>
 

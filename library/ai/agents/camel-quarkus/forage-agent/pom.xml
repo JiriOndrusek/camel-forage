@@ -45,6 +45,13 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.quarkiverse.langchain4j</groupId>
+            <artifactId>quarkus-langchain4j-core</artifactId>
+            <version>1.6.0.CR1</version>
+        </dependency>
+
     </dependencies>
 
 </project>

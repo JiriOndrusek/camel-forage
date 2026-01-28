@@ -14,17 +14,16 @@ import org.slf4j.LoggerFactory;
 /**
  * Simple implementation of an AI agent that provides basic chat functionality
  */
-public class SimpleAgent implements Agent, ConfigurationAware {
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleAgent.class);
+public class ForageQuarkusSimpleAgentWithoutMemory implements Agent, ConfigurationAware {
+    private static final Logger LOG = LoggerFactory.getLogger(ForageQuarkusSimpleAgentWithoutMemory.class);
 
     private AgentConfiguration configuration;
 
     // Cached AI service instances to avoid recreating proxies on every request
-    private ForageAgentWithMemory cachedMemoryService;
     private ForageAgentWithoutMemory cachedNoMemoryService;
     private ToolProvider lastToolProvider;
 
-    public SimpleAgent() {}
+    public ForageQuarkusSimpleAgentWithoutMemory() {}
 
     @Override
     public void configure(AgentConfiguration configuration) {
@@ -39,30 +38,20 @@ public class SimpleAgent implements Agent, ConfigurationAware {
     public String chat(AiAgentBody aiAgentBody, ToolProvider toolProvider) {
         LOG.debug("Chatting using ForageAgent");
 
-        if (hasMemory()) {
-            LOG.debug("Chatting with memory");
-            ForageAgentWithMemory agentService = createAiAgentService(toolProvider, ForageAgentWithMemory.class);
+        LOG.debug("Chatting without memory");
+        ForageAgentWithoutMemory agentService = createAiAgentService(toolProvider, ForageAgentWithoutMemory.class);
 
-            return aiAgentBody.getSystemMessage() != null
-                    ? agentService.chat(
-                            aiAgentBody.getMemoryId(), aiAgentBody.getUserMessage(), aiAgentBody.getSystemMessage())
-                    : agentService.chat(aiAgentBody.getMemoryId(), aiAgentBody.getUserMessage());
-        } else {
-            LOG.debug("Chatting without memory");
-            ForageAgentWithoutMemory agentService = createAiAgentService(toolProvider, ForageAgentWithoutMemory.class);
-
-            if (aiAgentBody.getContent() != null) {
-                if (aiAgentBody.getContent() instanceof List contents) {
-                    return agentService.chat(aiAgentBody.getUserMessage(), contents);
-                } else if (aiAgentBody.getContent() instanceof Content content) {
-                    return agentService.chat(aiAgentBody.getUserMessage(), List.of(content));
-                }
+        if (aiAgentBody.getContent() != null) {
+            if (aiAgentBody.getContent() instanceof List contents) {
+                return agentService.chat(aiAgentBody.getUserMessage(), contents);
+            } else if (aiAgentBody.getContent() instanceof Content content) {
+                return agentService.chat(aiAgentBody.getUserMessage(), List.of(content));
             }
-
-            return aiAgentBody.getSystemMessage() != null
-                    ? agentService.chat(aiAgentBody.getUserMessage(), aiAgentBody.getSystemMessage())
-                    : agentService.chat(aiAgentBody.getUserMessage());
         }
+
+        return aiAgentBody.getSystemMessage() != null
+                ? agentService.chat(aiAgentBody.getUserMessage(), aiAgentBody.getSystemMessage())
+                : agentService.chat(aiAgentBody.getUserMessage());
     }
 
     /**
@@ -70,19 +59,14 @@ public class SimpleAgent implements Agent, ConfigurationAware {
      * Services are cached to avoid recreating proxies on every request when the toolProvider is unchanged.
      */
     @SuppressWarnings("unchecked")
-    private <T> T createAiAgentService(ToolProvider toolProvider, Class<T> clazz) {
+    private ForageAgentWithoutMemory createAiAgentService(
+            ToolProvider toolProvider, Class<ForageAgentWithoutMemory> clazz) {
         // Check if we can return a cached instance
         if (toolProvider == lastToolProvider) {
-            if (clazz == ForageAgentWithMemory.class && cachedMemoryService != null) {
-                LOG.debug("Reusing cached ForageAgentWithMemory service");
-                return (T) cachedMemoryService;
-            } else if (clazz == ForageAgentWithoutMemory.class && cachedNoMemoryService != null) {
-                LOG.debug("Reusing cached ForageAgentWithoutMemory service");
-                return (T) cachedNoMemoryService;
-            }
+            LOG.debug("Reusing cached ForageAgentWithoutMemory service");
+            return (ForageAgentWithoutMemory) cachedNoMemoryService;
         } else {
             // Tool provider changed, invalidate cache
-            cachedMemoryService = null;
             cachedNoMemoryService = null;
             lastToolProvider = toolProvider;
         }
@@ -121,12 +105,8 @@ public class SimpleAgent implements Agent, ConfigurationAware {
         //        T service = builder.build();
 
         // Cache the service
-        if (clazz == ForageAgentWithMemory.class) {
-            cachedMemoryService = (ForageAgentWithMemory) service;
-        } else if (clazz == ForageAgentWithoutMemory.class) {
-            cachedNoMemoryService = (ForageAgentWithoutMemory) service;
-        }
+        cachedNoMemoryService = (ForageAgentWithoutMemory) service;
 
-        return (T) service;
+        return null;
     }
 }

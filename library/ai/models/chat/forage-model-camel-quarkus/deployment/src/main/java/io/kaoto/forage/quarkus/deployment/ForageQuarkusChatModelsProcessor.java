@@ -8,6 +8,7 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
 
 //
@@ -37,5 +38,13 @@ public class ForageQuarkusChatModelsProcessor {
                             ModelProvider.class.getName(),
                             recorder.createModelProvider(bean.getName())));
                 });
+    }
+
+    @BuildStep
+    IndexDependencyBuildItem registerDependencyForIndex() {
+        System.out.println("////////////////////////////////////////////////////////////////////////");
+        System.out.println("////////////////////////////////////////////////////////////////////////");
+        System.out.println("////////////////////////////////////////////////////////////////////////");
+        return new IndexDependencyBuildItem("io.kaoto.forage", "forage-agent");
     }
 }

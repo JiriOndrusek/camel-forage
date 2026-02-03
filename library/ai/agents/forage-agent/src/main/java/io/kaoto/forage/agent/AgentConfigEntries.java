@@ -243,6 +243,66 @@ public final class AgentConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
 
+    // RAG
+
+    // Common model configuration (shared across providers)
+    public static final ConfigModule EMBEDDING_MODEL_API_KEY = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.api.key",
+            "API key for authentication with the model provider",
+            "API Key",
+            null,
+            "password",
+            false,
+            ConfigTag.SECURITY);
+
+    public static final ConfigModule EMBEDDING_MODEL_BASE_URL = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.base.url",
+            "Base URL for the model provider API",
+            "Base URL",
+            null,
+            "string",
+            false,
+            ConfigTag.COMMON);
+
+    public static final ConfigModule EMBEDDING_MODEL_MODEL_NAME = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.embedding.model.name",
+            "The specific model name to use",
+            "Model Name",
+            null,
+            "string",
+            false,
+            ConfigTag.COMMON);
+    public static final ConfigModule EMBEDDING_MODEL_CUSTOM_HEADERS = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.embedding.model.custom.headers",
+            "todo",
+            "Custom Headers",
+            null,
+            "map",
+            false,
+            ConfigTag.COMMON);
+    public static final ConfigModule EMBEDDING_MODEL_TIMEOUT = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.embedding.model.timeout",
+            "todo",
+            "Timeout",
+            null,
+            "Duration",
+            false,
+            ConfigTag.COMMON);
+    public static final ConfigModule EMBEDDING_MODEL_MAX_RETRIES = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.embedding.model.max.retries",
+            "todo",
+            "Max retries",
+            null,
+            "int",
+            false,
+            ConfigTag.COMMON);
+
     private static final Map<ConfigModule, ConfigEntry> CONFIG_MODULES = new ConcurrentHashMap<>();
 
     static {
@@ -279,6 +339,14 @@ public final class AgentConfigEntries extends ConfigEntries {
         CONFIG_MODULES.put(MEMORY_REDIS_PASSWORD, ConfigEntry.fromModule());
         CONFIG_MODULES.put(MEMORY_INFINISPAN_SERVER_LIST, ConfigEntry.fromModule());
         CONFIG_MODULES.put(MEMORY_INFINISPAN_CACHE_NAME, ConfigEntry.fromModule());
+
+        // RAG
+        CONFIG_MODULES.put(EMBEDDING_MODEL_API_KEY, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL_BASE_URL, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL_MODEL_NAME, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL_CUSTOM_HEADERS, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL_TIMEOUT, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL_MAX_RETRIES, ConfigEntry.fromModule());
     }
 
     public static Map<ConfigModule, ConfigEntry> entries() {

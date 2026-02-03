@@ -4,7 +4,6 @@ import io.kaoto.forage.core.util.config.ConfigEntries;
 import io.kaoto.forage.core.util.config.ConfigEntry;
 import io.kaoto.forage.core.util.config.ConfigModule;
 import io.kaoto.forage.core.util.config.ConfigTag;
-import io.kaoto.forage.models.chat.ollama.OllamaConfig;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
     public static final ConfigModule BASE_URL = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.base.url",
             "The base URL of the Ollama server",
             "Base URL",
@@ -21,7 +20,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
     public static final ConfigModule MODEL_NAME = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.name",
             "The Ollama model to use",
             "Model Name",
@@ -30,7 +29,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
     public static final ConfigModule CUSTOM_HEADERS = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.custom.headers",
             "todo",
             "Custom Headers",
@@ -39,7 +38,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
     public static final ConfigModule TIMEOUT = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.timeout",
             "todo",
             "Timeout",
@@ -48,7 +47,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
     public static final ConfigModule MAX_RETRIES = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.max.retries",
             "todo",
             "Max retries",
@@ -57,7 +56,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
     public static final ConfigModule LOG_REQUESTS = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.log.requests",
             "Enable request logging",
             "Log Requests",
@@ -66,7 +65,7 @@ public final class EmbeddingOllamaConfigEntries extends ConfigEntries {
             false,
             ConfigTag.ADVANCED);
     public static final ConfigModule LOG_RESPONSES = ConfigModule.of(
-            OllamaConfig.class,
+            EmbeddingOllamaConfig.class,
             "forage.ollama.embedding.model.log.responses",
             "Enable response logging",
             "Log Responses",

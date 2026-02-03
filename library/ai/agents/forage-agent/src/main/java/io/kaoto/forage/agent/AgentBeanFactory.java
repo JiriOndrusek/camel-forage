@@ -330,6 +330,12 @@ public class AgentBeanFactory implements BeanFactory {
         String providerPrefix = getProviderConfigPrefix(modelKind);
         String prefix = DEFAULT_AGENT.equals(agentName) ? null : agentName;
 
+        // Set provider config values as system properties (provider's loadOverrides will pick these up)
+        setSystemPropertyIfNotNull(prefix, providerPrefix, "embedding.model.name", config.embeddingModelName());
+        setSystemPropertyIfNotNull(prefix, providerPrefix, "embedding.model.timeout", config.embeddingModelTimeout());
+        setSystemPropertyIfNotNull(prefix, providerPrefix, "embedding.max.retries", config.embeddingModelMaxRetries());
+        setSystemPropertyIfNotNull(prefix, providerPrefix, "embedding.base.url", config.embeddingModelBaseUrl());
+
         return modelProvider.create(prefix);
     }
 

@@ -5,8 +5,10 @@ import dev.langchain4j.guardrail.OutputGuardrail;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.embedding.EmbeddingModel;
 import io.kaoto.forage.agent.factory.ConfigurationAware;
 import io.kaoto.forage.core.ai.ChatMemoryBeanProvider;
+import io.kaoto.forage.core.ai.EmbeddingModelProvider;
 import io.kaoto.forage.core.ai.ModelProvider;
 import io.kaoto.forage.core.annotations.FactoryType;
 import io.kaoto.forage.core.annotations.ForageBean;
@@ -136,6 +138,9 @@ public class AgentBeanFactory implements BeanFactory {
             LOG.warn("Failed to create chat model for agent '{}'", name);
             return null;
         }
+
+        // Create embedding model
+        EmbeddingModel embeddingModel = createEmbeddingModel(config, modelKind, name);
 
         // Create memory provider if enabled
         ChatMemoryProvider chatMemoryProvider = null;
@@ -269,6 +274,26 @@ public class AgentBeanFactory implements BeanFactory {
         return null;
     }
 
+    private EmbeddingModel createEmbeddingModel(AgentConfig config, String modelKind, String agentName) {
+        // Find model provider by kind using ServiceLoader
+        List<ServiceLoader.Provider<EmbeddingModelProvider>> providers = findEmbeddingModelProviders();
+
+        for (ServiceLoader.Provider<EmbeddingModelProvider> provider : providers) {
+            Class<? extends EmbeddingModelProvider> providerClass = provider.type();
+            ForageBean annotation = providerClass.getAnnotation(ForageBean.class);
+            if (annotation != null && annotation.value().equals(modelKind)) {
+                LOG.debug("Found embedding model provider for kind '{}': {}", modelKind, providerClass.getName());
+                EmbeddingModelProvider modelProvider = provider.get();
+
+                // Create model using unified config
+                return createEmbeddingModelFromConfig(config, modelKind, modelProvider, agentName);
+            }
+        }
+
+        LOG.warn("No model provider found for kind: {}", modelKind);
+        return null;
+    }
+
     private ChatModel createChatModelFromConfig(
             AgentConfig config, String modelKind, ModelProvider modelProvider, String agentName) {
         // Map unified agent config values to provider-specific config keys
@@ -291,6 +316,19 @@ public class AgentBeanFactory implements BeanFactory {
         setSystemPropertyIfNotNull(prefix, providerPrefix, "deployment.name", config.deploymentName());
         setSystemPropertyIfNotNull(prefix, providerPrefix, "log.requests", config.logRequests());
         setSystemPropertyIfNotNull(prefix, providerPrefix, "log.responses", config.logResponses());
+
+        return modelProvider.create(prefix);
+    }
+
+    private EmbeddingModel createEmbeddingModelFromConfig(
+            AgentConfig config, String modelKind, EmbeddingModelProvider modelProvider, String agentName) {
+        // Map unified agent config values to provider-specific config keys
+        // Provider configs expect keys like: {prefix}.{provider}.api.key
+        // We have values in: {prefix}.agent.api.key
+        // So we need to set system properties that the provider's loadOverrides will pick up
+
+        String providerPrefix = getProviderConfigPrefix(modelKind);
+        String prefix = DEFAULT_AGENT.equals(agentName) ? null : agentName;
 
         return modelProvider.create(prefix);
     }
@@ -323,7 +361,7 @@ public class AgentBeanFactory implements BeanFactory {
     }
 
     private ChatMemoryProvider createMemoryProvider(AgentConfig config, String memoryKind) {
-        List<ServiceLoader.Provider<ChatMemoryBeanProvider>> providers = findMemoryProviders();
+        List<ServiceLoader.Provider<ChatMemoryBeanProvider>> providers = findMChatModelProviders();
 
         for (ServiceLoader.Provider<ChatMemoryBeanProvider> provider : providers) {
             Class<? extends ChatMemoryBeanProvider> providerClass = provider.type();
@@ -361,9 +399,15 @@ public class AgentBeanFactory implements BeanFactory {
         return loader.stream().toList();
     }
 
-    private List<ServiceLoader.Provider<ChatMemoryBeanProvider>> findMemoryProviders() {
+    private List<ServiceLoader.Provider<ChatMemoryBeanProvider>> findMChatModelProviders() {
         ServiceLoader<ChatMemoryBeanProvider> loader =
                 ServiceLoader.load(ChatMemoryBeanProvider.class, camelContext.getApplicationContextClassLoader());
+        return loader.stream().toList();
+    }
+
+    private List<ServiceLoader.Provider<EmbeddingModelProvider>> findEmbeddingModelProviders() {
+        ServiceLoader<EmbeddingModelProvider> loader =
+                ServiceLoader.load(EmbeddingModelProvider.class, camelContext.getApplicationContextClassLoader());
         return loader.stream().toList();
     }
 

@@ -3,9 +3,10 @@ package io.kaoto.forage.models.embeddings.ollama;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
-import io.kaoto.forage.core.ai.EmbeddingModelProvider;
 import io.kaoto.forage.core.annotations.ForageBean;
 import java.time.Duration;
+
+import io.kaoto.forage.core.common.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
         components = {"camel-langchain4j-agent"},
         feature = "Embeddings Model",
         description = "Locally-hosted models via Ollama (Llama, Mistral, etc.)")
-public class EmbeddingOllamaProvider implements EmbeddingModelProvider {
+public class EmbeddingOllamaProvider implements BeanProvider<EmbeddingModel> {
     private static final Logger LOG = LoggerFactory.getLogger(EmbeddingOllamaProvider.class);
 
     /**

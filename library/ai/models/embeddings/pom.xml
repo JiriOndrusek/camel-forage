@@ -16,7 +16,5 @@
 
     <modules>
         <module>forage-model-embeddings-ollama</module>
-        <module>forage-rag</module>
-        <module>forage-store-in-memory</module>
     </modules>
 </project>

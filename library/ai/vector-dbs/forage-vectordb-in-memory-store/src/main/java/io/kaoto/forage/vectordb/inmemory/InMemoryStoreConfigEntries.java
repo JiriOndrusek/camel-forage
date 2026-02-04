@@ -1,4 +1,4 @@
-package io.kaoto.forage.vectordb.mariadb;
+package io.kaoto.forage.vectordb.inmemory;
 
 import io.kaoto.forage.core.util.config.ConfigEntries;
 import io.kaoto.forage.core.util.config.ConfigEntry;
@@ -11,12 +11,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class InMemoryStoreConfigEntries extends ConfigEntries {
     public static final ConfigModule FILE_SOURCE = ConfigModule.of(
-            MariaDbConfig.class,
+            InMemoryStoreConfig.class,
             "forage.in.memory.store.file.source",
-            "todo,
+            "todo",
             "todo",
             null,
             "string",
+            true,
+            ConfigTag.COMMON);
+
+    public static final ConfigModule MAX_SIZE = ConfigModule.of(
+            InMemoryStoreConfig.class,
+            "forage.in.memory.store.max.size",
+            "todo",
+            "todo",
+            null,
+            "int",
+            true,
+            ConfigTag.COMMON);
+
+    public static final ConfigModule OVERLAP_SIZE = ConfigModule.of(
+            InMemoryStoreConfig.class,
+            "forage.in.memory.store.overlap.size",
+            "todo",
+            "todo",
+            null,
+            "int",
             true,
             ConfigTag.COMMON);
 
@@ -28,6 +48,8 @@ public final class InMemoryStoreConfigEntries extends ConfigEntries {
 
     static void init() {
         CONFIG_MODULES.put(FILE_SOURCE, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(MAX_SIZE, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(OVERLAP_SIZE, ConfigEntry.fromModule());
     }
 
     public static Map<ConfigModule, ConfigEntry> entries() {

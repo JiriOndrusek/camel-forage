@@ -178,6 +178,36 @@ public class AgentConfig implements Config {
                 .orElse("chat-memory");
     }
 
+    // EmbeddingStore
+
+    /**
+     * todo
+     */
+    public String fileSource() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_FILE_SOURCE.asNamed(prefix))
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Integer embeddingStoreMaxSize() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_MAX_SIZE.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+    /**
+     * todo
+     */
+    public Integer embeddingStoreOverlapSize() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_OVERLAP_SIZE.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
     // RAG
 
     public String embeddingModelBaseUrl() {
@@ -203,6 +233,26 @@ public class AgentConfig implements Config {
         return ConfigStore.getInstance()
                 .get(EMBEDDING_MODEL_TIMEOUT.asNamed(prefix))
                 .map(Duration::parse)
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Integer defaultRagMaxResults() {
+        return ConfigStore.getInstance()
+                .get(DEFAULT_RAG_MAX_RESULTS.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Double defaultRagMinScore() {
+        return ConfigStore.getInstance()
+                .get(DEFAULT_RAG_MIN_SCORE.asNamed(prefix))
+                .map(Double::parseDouble)
                 .orElse(null);
     }
 }

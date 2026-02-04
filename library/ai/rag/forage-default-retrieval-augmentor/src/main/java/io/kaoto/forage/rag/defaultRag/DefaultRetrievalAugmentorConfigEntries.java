@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class DefaultRetrievalAugmentorConfigEntries extends ConfigEntries {
     public static final ConfigModule MAX_RESULTS = ConfigModule.of(
-            io.kaoto.forage.models.embeddings.ollama.DefaultRetrievalAugmentorConfig.class,
+            DefaultRetrievalAugmentorConfig.class,
             "forage.rag.max.results",
             "todo",
             "todo",
@@ -20,7 +20,7 @@ public final class DefaultRetrievalAugmentorConfigEntries extends ConfigEntries 
             false,
             ConfigTag.COMMON);
     public static final ConfigModule MIN_SCORE = ConfigModule.of(
-            io.kaoto.forage.models.embeddings.ollama.DefaultRetrievalAugmentorConfig.class,
+            DefaultRetrievalAugmentorConfig.class,
             "forage.rag.min.score",
             "todo",
             "todo",

@@ -127,7 +127,7 @@ public class EmbeddingOllamaConfig implements Config {
      * @return the Ollama model name, never null
      */
     public String modelName() {
-        return ConfigStore.getInstance().get(MODEL_NAME.asNamed(prefix)).orElse(MODEL_NAME.defaultValue());
+        return ConfigStore.getInstance().get(MODEL_NAME.asNamed(prefix)).orElse(null);
     }
 
     //    /**

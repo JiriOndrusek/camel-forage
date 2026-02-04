@@ -6,12 +6,10 @@ import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.store.embedding.EmbeddingStore;
-import io.kaoto.forage.core.annotations.ForageBean;
 import io.kaoto.forage.core.ai.RetrievalAugmentorProvider;
-
+import io.kaoto.forage.core.annotations.ForageBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * todo
@@ -44,20 +42,36 @@ public class DefaultRetrievalAugmentorProvider implements RetrievalAugmentorProv
      */
     @Override
     public RetrievalAugmentor create(String id) {
-                final DefaultRetrievalAugmentorConfig config = new DefaultRetrievalAugmentorConfig(id);
+        final DefaultRetrievalAugmentorConfig config = new DefaultRetrievalAugmentorConfig(id);
 
-        int maxResults = config.maxResults();
-        double minScore = config.minScore();
+        Integer maxResults = config.maxResults();
+        Double minScore = config.minScore();
 
+        if (embeddingModel == null) {
+            LOG.trace("RAG is not configured, because no embedding model is provided");
+            return null;
+        }
+        if (embeddingStore == null) {
+            LOG.trace("RAG is not configured, because no embedding store is provided");
+            return null;
+        }
 
         // Create content retriever
-        EmbeddingStoreContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
-                //todo proper handling
-                .embeddingStore((EmbeddingStore<TextSegment>) embeddingStore)
-                .embeddingModel(embeddingModel)
-                .maxResults(maxResults)
-                .minScore(minScore)
-                .build();
+        EmbeddingStoreContentRetriever.EmbeddingStoreContentRetrieverBuilder contentRetrieverBuilder =
+                EmbeddingStoreContentRetriever.builder()
+                        // todo proper handling
+                        .embeddingStore((EmbeddingStore<TextSegment>) embeddingStore)
+                        .embeddingModel(embeddingModel);
+
+        if (maxResults != null) {
+            contentRetrieverBuilder.maxResults(maxResults);
+        }
+
+        if (minScore != null) {
+            contentRetrieverBuilder.minScore(minScore);
+        }
+
+        EmbeddingStoreContentRetriever contentRetriever = contentRetrieverBuilder.build();
 
         LOG.trace(
                 "Creating DefaultRetrievalAugmentor model with configuration: maxResults={}, minScore={}",
@@ -69,30 +83,26 @@ public class DefaultRetrievalAugmentorProvider implements RetrievalAugmentorProv
                 .contentRetriever(contentRetriever)
                 .build();
 
-
-
-
-//
-//        OllamaEmbeddingModel.OllamaEmbeddingModelBuilder builder =
-//                OllamaEmbeddingModel.builder().baseUrl(baseUrl).modelName(modelName);
-//        // Only set optional parameters if they are configured
-//        if (maxRetries != null) {
-//            builder.maxRetries(maxRetries);
-//        }
-//
-//        if (timeout != null) {
-//            builder.timeout(timeout);
-//        }
-//        if (logRequests != null) {
-//            builder.logRequests(logRequests);
-//        }
-//
-//        if (logResponses != null) {
-//            builder.logResponses(logResponses);
-//        }
-//
-//        return builder.build();
+        //
+        //        OllamaEmbeddingModel.OllamaEmbeddingModelBuilder builder =
+        //                OllamaEmbeddingModel.builder().baseUrl(baseUrl).modelName(modelName);
+        //        // Only set optional parameters if they are configured
+        //        if (maxRetries != null) {
+        //            builder.maxRetries(maxRetries);
+        //        }
+        //
+        //        if (timeout != null) {
+        //            builder.timeout(timeout);
+        //        }
+        //        if (logRequests != null) {
+        //            builder.logRequests(logRequests);
+        //        }
+        //
+        //        if (logResponses != null) {
+        //            builder.logResponses(logResponses);
+        //        }
+        //
+        //        return builder.build();
 
     }
-
 }

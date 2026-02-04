@@ -3,10 +3,9 @@ package io.kaoto.forage.models.embeddings.ollama;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import io.kaoto.forage.core.ai.EmbeddingModelProvider;
 import io.kaoto.forage.core.annotations.ForageBean;
 import java.time.Duration;
-
-import io.kaoto.forage.core.common.BeanProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
         components = {"camel-langchain4j-agent"},
         feature = "Embeddings Model",
         description = "Locally-hosted models via Ollama (Llama, Mistral, etc.)")
-public class EmbeddingOllamaProvider implements BeanProvider<EmbeddingModel> {
+public class EmbeddingOllamaProvider implements EmbeddingModelProvider {
     private static final Logger LOG = LoggerFactory.getLogger(EmbeddingOllamaProvider.class);
 
     /**
@@ -41,6 +40,11 @@ public class EmbeddingOllamaProvider implements BeanProvider<EmbeddingModel> {
         Duration timeout = config.timeout();
         Boolean logRequests = config.logRequests();
         Boolean logResponses = config.logResponses();
+
+        if (modelName == null) {
+            LOG.trace("Embedding Ollama model name is not created. Model name is not provided.");
+            return null;
+        }
 
         LOG.trace(
                 "Creating Ollama model: {} at {} with configuration: maxRetries={}, toptimeoutK={}, logRequests={}, logResponses={}",

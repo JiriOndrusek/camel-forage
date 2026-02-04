@@ -243,9 +243,41 @@ public final class AgentConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
 
+    // EMBEDDING STORE
+
+    public static final ConfigModule EMBEDDING_STORE_FILE_SOURCE = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.in.memory.store.file.source",
+            "todo",
+            "todo",
+            null,
+            "string",
+            true,
+            ConfigTag.COMMON);
+
+    public static final ConfigModule EMBEDDING_STORE_MAX_SIZE = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.in.memory.store.max.size",
+            "todo",
+            "todo",
+            null,
+            "int",
+            true,
+            ConfigTag.COMMON);
+
+    public static final ConfigModule EMBEDDING_STORE_OVERLAP_SIZE = ConfigModule.of(
+            AgentConfig.class,
+            "forage.agent.in.memory.store.overlap.size",
+            "todo",
+            "todo",
+            null,
+            "int",
+            true,
+            ConfigTag.COMMON);
+
     // RAG
 
-    // Common model configuration (shared across providers)
+    // embedding model
     public static final ConfigModule EMBEDDING_MODEL_API_KEY = ConfigModule.of(
             AgentConfig.class,
             "forage.agent.api.key",
@@ -303,6 +335,13 @@ public final class AgentConfigEntries extends ConfigEntries {
             false,
             ConfigTag.COMMON);
 
+    // rag
+
+    public static final ConfigModule DEFAULT_RAG_MAX_RESULTS = ConfigModule.of(
+            AgentConfig.class, "forage.agent.rag.max.results", "todo", "todo", null, "int", false, ConfigTag.COMMON);
+    public static final ConfigModule DEFAULT_RAG_MIN_SCORE = ConfigModule.of(
+            AgentConfig.class, "forage.agent.rag.min.score", "todo", "todo", null, "double", false, ConfigTag.COMMON);
+
     private static final Map<ConfigModule, ConfigEntry> CONFIG_MODULES = new ConcurrentHashMap<>();
 
     static {
@@ -340,6 +379,11 @@ public final class AgentConfigEntries extends ConfigEntries {
         CONFIG_MODULES.put(MEMORY_INFINISPAN_SERVER_LIST, ConfigEntry.fromModule());
         CONFIG_MODULES.put(MEMORY_INFINISPAN_CACHE_NAME, ConfigEntry.fromModule());
 
+        // embedding store
+        CONFIG_MODULES.put(EMBEDDING_STORE_FILE_SOURCE, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_STORE_MAX_SIZE, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_STORE_OVERLAP_SIZE, ConfigEntry.fromModule());
+
         // RAG
         CONFIG_MODULES.put(EMBEDDING_MODEL_API_KEY, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_BASE_URL, ConfigEntry.fromModule());
@@ -347,6 +391,9 @@ public final class AgentConfigEntries extends ConfigEntries {
         CONFIG_MODULES.put(EMBEDDING_MODEL_CUSTOM_HEADERS, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_TIMEOUT, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_MAX_RETRIES, ConfigEntry.fromModule());
+
+        CONFIG_MODULES.put(DEFAULT_RAG_MAX_RESULTS, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(DEFAULT_RAG_MIN_SCORE, ConfigEntry.fromModule());
     }
 
     public static Map<ConfigModule, ConfigEntry> entries() {

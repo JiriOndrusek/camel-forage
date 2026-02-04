@@ -1,12 +1,11 @@
 package io.kaoto.forage.rag.defaultRag;
 
+import static io.kaoto.forage.rag.defaultRag.DefaultRetrievalAugmentorConfigEntries.*;
+
 import io.kaoto.forage.core.util.config.Config;
 import io.kaoto.forage.core.util.config.ConfigModule;
 import io.kaoto.forage.core.util.config.ConfigStore;
-import java.time.Duration;
 import java.util.Optional;
-
-import static io.kaoto.forage.rag.defaultRag.DefaultRetrievalAugmentorConfigEntries.*;
 
 /**
  * todo
@@ -54,8 +53,9 @@ public class DefaultRetrievalAugmentorConfig implements Config {
      * todo
      */
     public Integer maxResults() {
-        return ConfigStore.getInstance().get(MAX_RESULTS.asNamed(prefix))
-                 .map(Integer::parseInt)
+        return ConfigStore.getInstance()
+                .get(MAX_RESULTS.asNamed(prefix))
+                .map(Integer::parseInt)
                 .orElse(null);
     }
 
@@ -63,7 +63,8 @@ public class DefaultRetrievalAugmentorConfig implements Config {
      * todo
      */
     public Double minScore() {
-        return ConfigStore.getInstance().get(MIN_SCORE.asNamed(prefix))
+        return ConfigStore.getInstance()
+                .get(MIN_SCORE.asNamed(prefix))
                 .map(Double::parseDouble)
                 .orElse(null);
     }

@@ -28,15 +28,15 @@ public final class OllamaEmbeddingConfigEntries extends ConfigEntries {
             "string",
             false,
             ConfigTag.COMMON);
-//    public static final ConfigModule CUSTOM_HEADERS = ConfigModule.of(
-//            OllamaEmbedddingConfig.class,
-//            "forage.ollama.embedding.model.custom.headers",
-//            "todo",
-//            "Custom Headers",
-//            null,
-//            "map",
-//            false,
-//            ConfigTag.COMMON);
+    //    public static final ConfigModule CUSTOM_HEADERS = ConfigModule.of(
+    //            OllamaEmbedddingConfig.class,
+    //            "forage.ollama.embedding.model.custom.headers",
+    //            "todo",
+    //            "Custom Headers",
+    //            null,
+    //            "map",
+    //            false,
+    //            ConfigTag.COMMON);
     public static final ConfigModule TIMEOUT = ConfigModule.of(
             OllamaEmbedddingConfig.class,
             "forage.ollama.embedding.model.timeout",
@@ -82,7 +82,7 @@ public final class OllamaEmbeddingConfigEntries extends ConfigEntries {
     static void init() {
         CONFIG_MODULES.put(BASE_URL, ConfigEntry.fromModule());
         CONFIG_MODULES.put(MODEL_NAME, ConfigEntry.fromModule());
-//        CONFIG_MODULES.put(CUSTOM_HEADERS, ConfigEntry.fromModule());
+        //        CONFIG_MODULES.put(CUSTOM_HEADERS, ConfigEntry.fromModule());
         CONFIG_MODULES.put(TIMEOUT, ConfigEntry.fromModule());
         CONFIG_MODULES.put(MAX_RETRIES, ConfigEntry.fromModule());
         CONFIG_MODULES.put(LOG_REQUESTS, ConfigEntry.fromModule());

@@ -307,24 +307,24 @@ public final class AgentConfigEntries extends ConfigEntries {
             "string",
             false,
             ConfigTag.COMMON);
-//    public static final ConfigModule EMBEDDING_MODEL_CUSTOM_HEADERS = ConfigModule.of(
-//            AgentConfig.class,
-//            "forage.agent.embedding.model.custom.headers",
-//            "todo",
-//            "Custom Headers",
-//            null,
-//            "map",
-//            false,
-//            ConfigTag.COMMON);
+    //    public static final ConfigModule EMBEDDING_MODEL_CUSTOM_HEADERS = ConfigModule.of(
+    //            AgentConfig.class,
+    //            "forage.agent.embedding.model.custom.headers",
+    //            "todo",
+    //            "Custom Headers",
+    //            null,
+    //            "map",
+    //            false,
+    //            ConfigTag.COMMON);
     public static final ConfigModule EMBEDDING_MODEL_TIMEOUT = ConfigModule.of(
             AgentConfig.class,
-        "forage.ollama.embedding.model.timeout",
-        "todo",
-        "Timeout",
-        null,
-        "Duration",
-        false,
-        ConfigTag.COMMON);
+            "forage.ollama.embedding.model.timeout",
+            "todo",
+            "Timeout",
+            null,
+            "Duration",
+            false,
+            ConfigTag.COMMON);
     public static final ConfigModule EMBEDDING_MODEL_MAX_RETRIES = ConfigModule.of(
             AgentConfig.class,
             "forage.ollama.embedding.model.max.retries",
@@ -388,7 +388,7 @@ public final class AgentConfigEntries extends ConfigEntries {
         CONFIG_MODULES.put(EMBEDDING_MODEL_API_KEY, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_BASE_URL, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_MODEL_NAME, ConfigEntry.fromModule());
-//        CONFIG_MODULES.put(EMBEDDING_MODEL_CUSTOM_HEADERS, ConfigEntry.fromModule());
+        //        CONFIG_MODULES.put(EMBEDDING_MODEL_CUSTOM_HEADERS, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_TIMEOUT, ConfigEntry.fromModule());
         CONFIG_MODULES.put(EMBEDDING_MODEL_MAX_RETRIES, ConfigEntry.fromModule());
 

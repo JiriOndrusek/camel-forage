@@ -5,6 +5,7 @@ import static io.kaoto.forage.agent.AgentConfigEntries.*;
 import io.kaoto.forage.core.util.config.Config;
 import io.kaoto.forage.core.util.config.ConfigModule;
 import io.kaoto.forage.core.util.config.ConfigStore;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -175,5 +176,83 @@ public class AgentConfig implements Config {
         return ConfigStore.getInstance()
                 .get(MEMORY_INFINISPAN_CACHE_NAME.asNamed(prefix))
                 .orElse("chat-memory");
+    }
+
+    // EmbeddingStore
+
+    /**
+     * todo
+     */
+    public String fileSource() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_FILE_SOURCE.asNamed(prefix))
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Integer embeddingStoreMaxSize() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_MAX_SIZE.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+    /**
+     * todo
+     */
+    public Integer embeddingStoreOverlapSize() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_STORE_OVERLAP_SIZE.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
+    // RAG
+
+    public String embeddingModelBaseUrl() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_MODEL_BASE_URL.asNamed(prefix))
+                .orElse(BASE_URL.defaultValue());
+    }
+
+    public String embeddingModelName() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_MODEL_MODEL_NAME.asNamed(prefix))
+                .orElse(MODEL_NAME.defaultValue());
+    }
+
+    public Integer embeddingModelMaxRetries() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_MODEL_MAX_RETRIES.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
+    public Duration embeddingModelTimeout() {
+        return ConfigStore.getInstance()
+                .get(EMBEDDING_MODEL_TIMEOUT.asNamed(prefix))
+                .map(Duration::parse)
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Integer defaultRagMaxResults() {
+        return ConfigStore.getInstance()
+                .get(DEFAULT_RAG_MAX_RESULTS.asNamed(prefix))
+                .map(Integer::parseInt)
+                .orElse(null);
+    }
+
+    /**
+     * todo
+     */
+    public Double defaultRagMinScore() {
+        return ConfigStore.getInstance()
+                .get(DEFAULT_RAG_MIN_SCORE.asNamed(prefix))
+                .map(Double::parseDouble)
+                .orElse(null);
     }
 }

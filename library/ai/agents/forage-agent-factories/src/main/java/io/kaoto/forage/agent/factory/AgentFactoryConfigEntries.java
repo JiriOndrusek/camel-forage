@@ -32,6 +32,8 @@ public final class AgentFactoryConfigEntries extends ConfigEntries {
             ConfigModule.of(AgentFactoryConfig.class, "forage.guardrails.input.classes");
     public static final ConfigModule GUARDRAILS_OUTPUT_CLASSES =
             ConfigModule.of(AgentFactoryConfig.class, "forage.guardrails.output.classes");
+    public static final ConfigModule EMBEDDING_MODEL =
+            ConfigModule.of(AgentFactoryConfig.class, "forage.guardrails.output.classes");
 
     private static final Map<ConfigModule, ConfigEntry> CONFIG_MODULES = new ConcurrentHashMap<>();
 
@@ -46,6 +48,7 @@ public final class AgentFactoryConfigEntries extends ConfigEntries {
         CONFIG_MODULES.put(PROVIDER_AGENT_CLASS, ConfigEntry.fromModule());
         CONFIG_MODULES.put(GUARDRAILS_INPUT_CLASSES, ConfigEntry.fromModule());
         CONFIG_MODULES.put(GUARDRAILS_OUTPUT_CLASSES, ConfigEntry.fromModule());
+        CONFIG_MODULES.put(EMBEDDING_MODEL, ConfigEntry.fromModule());
     }
 
     public static Map<ConfigModule, ConfigEntry> entries() {

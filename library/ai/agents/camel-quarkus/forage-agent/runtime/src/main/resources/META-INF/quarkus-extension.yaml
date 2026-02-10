@@ -1,0 +1,8 @@
+name: Camel Quarkus Forage Agent
+#description: Buldtime initialization of forage agent.
+metadata:
+  keywords:
+    - forage-agent
+  categories:
+    - "miscellaneous"
+  status: "preview"

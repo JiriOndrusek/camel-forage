@@ -83,6 +83,19 @@
                 </dependency>
                 <dependency>
                     <groupId>io.kaoto.forage</groupId>
+                    <artifactId>forage-spring-rabbitmq-starter</artifactId>
+                    <version>${project.version}</version>
+                    <type>pom</type>
+                    <scope>test</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>io.kaoto.forage</groupId>
                     <artifactId>forage-quarkus-spring-rabbitmq-deployment</artifactId>
                     <version>${project.version}</version>
                     <type>pom</type>

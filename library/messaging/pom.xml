@@ -15,6 +15,7 @@
     <modules>
         <module>forage-spring-rabbitmq-common</module>
         <module>forage-spring-rabbitmq</module>
+        <module>spring-boot</module>
         <module>camel-quarkus</module>
     </modules>
 

@@ -10,6 +10,8 @@ import io.kaoto.forage.core.annotations.ForageFactory;
 import io.kaoto.forage.core.common.BeanFactory;
 import io.kaoto.forage.core.util.config.ConfigHelper;
 import io.kaoto.forage.core.util.config.ConfigStore;
+import io.kaoto.forage.messaging.spring.rabbitmq.common.SpringRabbitMQConfig;
+import io.kaoto.forage.messaging.spring.rabbitmq.common.SpringRabbitMQConnectionFactoryHelper;
 
 @ForageFactory(
         value = "Spring RabbitMQ Connection",
@@ -86,31 +88,8 @@ public class SpringRabbitMQBeanFactory implements BeanFactory {
                 config.channelCacheSize(),
                 config.cacheMode());
 
-        com.rabbitmq.client.ConnectionFactory rabbitConnectionFactory = new com.rabbitmq.client.ConnectionFactory();
-        rabbitConnectionFactory.setHost(config.host());
-        rabbitConnectionFactory.setPort(config.port());
-        rabbitConnectionFactory.setUsername(config.username());
-        rabbitConnectionFactory.setPassword(config.password());
-        rabbitConnectionFactory.setVirtualHost(config.virtualHost());
-        rabbitConnectionFactory.setRequestedHeartbeat(config.requestedHeartbeat());
-        rabbitConnectionFactory.setConnectionTimeout(config.connectionTimeout());
-        rabbitConnectionFactory.setAutomaticRecoveryEnabled(config.automaticRecoveryEnabled());
-        rabbitConnectionFactory.setNetworkRecoveryInterval(config.networkRecoveryInterval());
-
-        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(rabbitConnectionFactory);
-        cachingConnectionFactory.setChannelCacheSize(config.channelCacheSize());
-        cachingConnectionFactory.setConnectionCacheSize(config.connectionCacheSize());
-        cachingConnectionFactory.setChannelCheckoutTimeout(config.channelCheckoutTimeout());
-
-        if (config.addresses() != null) {
-            cachingConnectionFactory.setAddresses(config.addresses());
-        }
-
-        if ("CONNECTION".equalsIgnoreCase(config.cacheMode())) {
-            cachingConnectionFactory.setCacheMode(CachingConnectionFactory.CacheMode.CONNECTION);
-        } else {
-            cachingConnectionFactory.setCacheMode(CachingConnectionFactory.CacheMode.CHANNEL);
-        }
+        CachingConnectionFactory cachingConnectionFactory =
+                SpringRabbitMQConnectionFactoryHelper.createCachingConnectionFactory(config);
 
         LOG.info("CachingConnectionFactory created successfully");
         return cachingConnectionFactory;

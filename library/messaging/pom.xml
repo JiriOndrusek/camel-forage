@@ -13,7 +13,9 @@
     <name>Forage :: Library :: Messaging</name>
 
     <modules>
+        <module>forage-spring-rabbitmq-common</module>
         <module>forage-spring-rabbitmq</module>
+        <module>camel-quarkus</module>
     </modules>
 
 </project>

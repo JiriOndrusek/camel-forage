@@ -56,6 +56,9 @@ public class SpringRabbitMQTest implements ForageIntegrationTest {
     public void springRabbitMQMessaging(ForageTestCaseRunner runner) {
 
         // validation of logged message from consumer
-        runner.then(camel().jbang().verify().integration(INTEGRATION_NAME).waitForLogMessage("Received: Hello Camel from route1 - .*"));
+        runner.then(camel().jbang()
+                .verify()
+                .integration(INTEGRATION_NAME)
+                .waitForLogMessage("Received: Hello Camel from route1"));
     }
 }

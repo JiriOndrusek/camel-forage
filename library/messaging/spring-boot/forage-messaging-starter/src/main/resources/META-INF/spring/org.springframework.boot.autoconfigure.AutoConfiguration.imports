@@ -1,0 +1,3 @@
+io.kaoto.forage.springboot.messaging.rabbitmq.ForageSpringRabbitMQAutoConfiguration
+io.kaoto.forage.springboot.messaging.rabbitmq.health.ForageRabbitHealthContributorAutoConfiguration
+io.kaoto.forage.springboot.messaging.rabbitmq.metrics.ForageRabbitMetricsAutoConfiguration

@@ -24,7 +24,7 @@
     </dependencyManagement>
 
     <modules>
-        <module>forage-spring-rabbitmq-starter</module>
+        <module>forage-messaging-starter</module>
     </modules>
 
 </project>

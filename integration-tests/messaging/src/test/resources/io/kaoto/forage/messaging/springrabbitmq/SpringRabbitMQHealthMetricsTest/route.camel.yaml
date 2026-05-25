@@ -1,0 +1,33 @@
+- route:
+    id: producer-route
+    from:
+      uri: timer
+      parameters:
+        timerName: healthMetricsTest
+        period: "3000"
+        repeatCount: 5
+      steps:
+        - setBody:
+            simple:
+              expression: Health/Metrics Test Message ${exchangeId}
+        - to:
+            id: to-rabbitmq
+            uri: spring-rabbitmq
+            parameters:
+              exchangeName: health-metrics-exchange
+              routingKey: test
+              connectionFactory: "#rabbitConnectionFactory"
+- route:
+    id: consumer-route
+    from:
+      id: from-rabbitmq
+      uri: spring-rabbitmq
+      parameters:
+        exchangeName: health-metrics-exchange
+        queues: health-metrics-queue
+        routingKey: test
+        connectionFactory: "#rabbitConnectionFactory"
+      steps:
+        - log:
+            id: log-message
+            message: "Received: ${body}"

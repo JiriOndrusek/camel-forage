@@ -4,7 +4,6 @@ import org.springframework.amqp.rabbit.connection.AbstractConnectionFactory;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
-import org.springframework.util.StringUtils;
 import io.kaoto.forage.messaging.spring.rabbitmq.metrics.RabbitMetrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -45,9 +44,16 @@ class ForageRabbitConnectionFactoryMetricsPostProcessor implements BeanPostProce
         new RabbitMetrics(rabbitConnectionFactory, Tags.of("name", connectionFactoryName)).bindTo(registry);
     }
 
+    /**
+     * Extract the connection factory name from the bean name by removing the
+     * "connectionFactory" suffix if present (case-insensitive).
+     *
+     * @param beanName the bean name
+     * @return the connection factory name without the suffix
+     */
     private String getConnectionFactoryName(String beanName) {
         if (beanName.length() > CONNECTION_FACTORY_SUFFIX.length()
-                && StringUtils.endsWithIgnoreCase(beanName, CONNECTION_FACTORY_SUFFIX)) {
+                && beanName.toLowerCase().endsWith(CONNECTION_FACTORY_SUFFIX.toLowerCase())) {
             return beanName.substring(0, beanName.length() - CONNECTION_FACTORY_SUFFIX.length());
         }
         return beanName;
@@ -64,6 +70,8 @@ class ForageRabbitConnectionFactoryMetricsPostProcessor implements BeanPostProce
 
     @Override
     public int getOrder() {
+        // Run with highest precedence to ensure metrics are configured
+        // before connection factories are used by other components
         return Ordered.HIGHEST_PRECEDENCE;
     }
 }

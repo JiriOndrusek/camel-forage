@@ -19,6 +19,13 @@ import io.kaoto.forage.springboot.messaging.springrabbitmq.ForageSpringRabbitMQA
  * <p>Automatically creates health contributors for all {@link RabbitTemplate} beans
  * when Spring Boot Actuator is present and health indicators are enabled.
  *
+ * <p><strong>Relationship with Spring Boot's default RabbitMQ health indicator:</strong>
+ * This auto-configuration is designed to work alongside or replace Spring Boot's built-in
+ * {@code RabbitHealthIndicator}. It uses {@code @ConditionalOnMissingBean} to avoid
+ * conflicts - if Spring Boot's default health indicator is already present, this
+ * configuration will back off. Otherwise, it provides equivalent functionality for
+ * Forage-managed RabbitMQ connections.
+ *
  * @since 1.4
  */
 @AutoConfiguration(after = ForageSpringRabbitMQAutoConfiguration.class)

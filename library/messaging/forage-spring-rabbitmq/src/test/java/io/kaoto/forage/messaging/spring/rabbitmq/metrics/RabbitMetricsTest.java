@@ -70,4 +70,21 @@ class RabbitMetricsTest {
 
         verify(connectionFactory).setMetricsCollector(any(MetricsCollector.class));
     }
+
+    @Test
+    void metricsDoesNotReplaceExistingCollector() {
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        MeterRegistry meterRegistry = new SimpleMeterRegistry();
+
+        // Set an existing metrics collector
+        MetricsCollector existingCollector = mock(MetricsCollector.class);
+        connectionFactory.setMetricsCollector(existingCollector);
+
+        // Try to bind metrics - should not replace existing collector
+        RabbitMetrics rabbitMetrics = new RabbitMetrics(connectionFactory, Collections.emptyList());
+        rabbitMetrics.bindTo(meterRegistry);
+
+        // Verify the existing collector is still in place
+        assertThat(connectionFactory.getMetricsCollector()).isSameAs(existingCollector);
+    }
 }

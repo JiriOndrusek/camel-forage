@@ -36,6 +36,10 @@ public class RabbitMetrics implements MeterBinder {
 
     @Override
     public void bindTo(MeterRegistry registry) {
-        this.connectionFactory.setMetricsCollector(new MicrometerMetricsCollector(registry, "rabbitmq", this.tags));
+        // Only set metrics collector if one is not already configured
+        // to avoid replacing existing collectors and losing metrics
+        if (this.connectionFactory.getMetricsCollector() == null) {
+            this.connectionFactory.setMetricsCollector(new MicrometerMetricsCollector(registry, "rabbitmq", this.tags));
+        }
     }
 }

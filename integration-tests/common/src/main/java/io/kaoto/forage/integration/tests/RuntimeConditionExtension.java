@@ -13,15 +13,32 @@ import org.junit.platform.commons.support.AnnotationSupport;
  * <p>This extension checks for {@link DisableOnQuarkus}, {@link DisableOnCamelMain},
  * and {@link DisableOnSpringBoot} annotations and disables tests based on the current
  * runtime specified in {@link IntegrationTestSetupExtension#RUNTIME_PROPERTY}.
+ *
+ * <p><strong>Usage:</strong> Tests using the disable annotations must explicitly register
+ * this extension:
+ * <pre>{@code
+ * @ExtendWith({IntegrationTestSetupExtension.class, RuntimeConditionExtension.class})
+ * @DisableOnQuarkus(reason = "Feature only available in Spring Boot")
+ * public class MyTest {
+ *     // ...
+ * }
+ * }</pre>
+ *
+ * <p>If a test uses {@code @DisableOn*} annotations without registering this extension,
+ * the annotations will be silently ignored and the test will run regardless of runtime.
  */
 public class RuntimeConditionExtension implements ExecutionCondition {
 
     @Override
     public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
         String runtime = System.getProperty(IntegrationTestSetupExtension.RUNTIME_PROPERTY);
+        // Use exact matching for robustness - the runtime property values are:
+        // null or empty -> plain Camel Main
+        // "spring-boot" -> Spring Boot runtime
+        // "quarkus" -> Quarkus runtime
         boolean isCamelMain = runtime == null || runtime.isEmpty();
-        boolean isSpringBoot = runtime != null && runtime.contains("spring-boot");
-        boolean isQuarkus = runtime != null && runtime.contains("quarkus");
+        boolean isSpringBoot = "spring-boot".equals(runtime);
+        boolean isQuarkus = "quarkus".equals(runtime);
 
         // Check class-level annotations first
         Optional<DisableOnCamelMain> disableOnCamelMain =

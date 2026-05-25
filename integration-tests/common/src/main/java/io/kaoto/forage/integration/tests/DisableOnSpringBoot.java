@@ -10,7 +10,11 @@ import java.lang.annotation.Target;
  *
  * <p>This annotation can be applied to test methods or test classes to skip execution
  * when the {@link IntegrationTestSetupExtension#RUNTIME_PROPERTY} system property
- * contains "spring-boot".
+ * is set to "spring-boot".
+ *
+ * <p><strong>Important:</strong> This annotation requires {@link RuntimeConditionExtension}
+ * to be registered on the test class via {@code @ExtendWith(RuntimeConditionExtension.class)}.
+ * Without this extension, the annotation will be silently ignored.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

@@ -167,7 +167,6 @@ public class SpringRabbitMQHealthMetricsTest implements ForageIntegrationTest {
             assertThat(components.has("rabbit"))
                     .as("Health components should include 'rabbit'")
                     .isTrue();
-
         });
     }
 

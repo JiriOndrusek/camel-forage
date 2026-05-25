@@ -26,7 +26,7 @@
 
         <dependency>
             <groupId>io.kaoto.forage</groupId>
-            <artifactId>forage-spring-rabbitmq-common</artifactId>
+            <artifactId>forage-core-messaging</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -19,6 +19,24 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.camel.quarkus</groupId>
+            <artifactId>camel-quarkus-spring-rabbitmq</artifactId>
+            <version>${camel-quarkus.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.kaoto.forage</groupId>
+            <artifactId>forage-core-messaging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.kaoto.forage</groupId>
+            <artifactId>forage-core-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.kaoto.forage</groupId>
             <artifactId>forage-spring-rabbitmq-common</artifactId>
             <version>${project.version}</version>
@@ -26,7 +44,7 @@
 
         <dependency>
             <groupId>io.kaoto.forage</groupId>
-            <artifactId>forage-core-common</artifactId>
+            <artifactId>forage-spring-rabbitmq</artifactId>
             <version>${project.version}</version>
         </dependency>
 

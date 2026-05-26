@@ -1,6 +1,7 @@
 package io.kaoto.forage.messaging.springrabbitmq;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -77,29 +78,31 @@ public class SpringRabbitMQHealthMetricsTest implements ForageIntegrationTest {
             actuatorPort = findAvailablePort();
             LOG.info("Using random port {} for actuator endpoints", actuatorPort);
 
-            Resource originalProperties = classResource("forage-rabbitmq.properties");
-            String original = new String(originalProperties.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            Resource templateProperties = classResource("forage-spring-rabbitmq.properties.template");
+            String template = new String(templateProperties.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
             // Replace connection details with testcontainer values and set actuator port
-            String propertiesContent = original.replaceAll(
-                            "forage\\.spring\\.rabbitmq\\.host=.*", "forage.spring.rabbitmq.host=" + rabbitmq.getHost())
-                    .replaceAll(
+            String propertiesContent = template.replaceAll(
                             "forage\\.spring\\.rabbitmq\\.port=.*",
                             "forage.spring.rabbitmq.port=" + rabbitmq.getMappedPort(5672))
-                    .replaceAll(
-                            "forage\\.spring\\.rabbitmq\\.username=.*",
-                            "forage.spring.rabbitmq.username=" + rabbitmq.getAdminUsername())
-                    .replaceAll(
-                            "forage\\.spring\\.rabbitmq\\.password=.*",
-                            "forage.spring.rabbitmq.password=" + rabbitmq.getAdminPassword())
                     .replaceAll("server\\.port=.*", "server.port=" + actuatorPort);
 
-            // Write to temporary file
-            Path tempPropertiesFile = Files.createTempFile("forage-rabbitmq-", ".properties");
+            // Write to temp directory with proper name so it gets discovered by config system
+            Path tempDir = Files.createTempDirectory("forage-test-");
+            Path tempPropertiesFile = tempDir.resolve("forage-spring-rabbitmq.properties");
             Files.writeString(tempPropertiesFile, propertiesContent, StandardCharsets.UTF_8);
 
-            // Register cleanup
-            afterAll.accept(() -> Files.deleteIfExists(tempPropertiesFile));
+            // Register cleanup to delete temp file and directory
+            afterAll.accept(() -> {
+                try {
+                    Files.deleteIfExists(tempPropertiesFile);
+                    Files.deleteIfExists(tempDir);
+                } catch (java.nio.file.DirectoryNotEmptyException e) {
+                    // Ignore - temp directory will be cleaned up by OS
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
 
             Resource dynamicProperties = Resources.create(tempPropertiesFile.toFile());
 
@@ -115,7 +118,7 @@ public class SpringRabbitMQHealthMetricsTest implements ForageIntegrationTest {
                     .dumpIntegrationOutput(true));
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to prepare forage-rabbitmq.properties", e);
+            throw new RuntimeException("Failed to prepare forage-spring-rabbitmq.properties", e);
         }
 
         return INTEGRATION_NAME;

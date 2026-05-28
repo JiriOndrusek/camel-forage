@@ -40,6 +40,7 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
     private final ForageModuleDescriptor<C, P> descriptor;
     private final Environment environment;
     private UnaryOperator<Object> beanCustomizer;
+    private String firstNamedBean;
 
     public ForageSpringBootModuleAdapter(ForageModuleDescriptor<C, P> descriptor, Environment environment) {
         this.descriptor = descriptor;
@@ -84,6 +85,22 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
         // so this is the reliable point to replace them.
         if (beanFactory instanceof BeanDefinitionRegistry registry) {
             String defaultName = descriptor.defaultBeanName();
+
+            // Register default bean pointing to the first named bean if needed
+            if (firstNamedBean != null
+                    && !firstNamedBean.equals(defaultName)
+                    && !registry.containsBeanDefinition(defaultName)) {
+                GenericBeanDefinition defaultDef = new GenericBeanDefinition();
+                defaultDef.setBeanClass(descriptor.primaryBeanClass());
+                defaultDef.setInstanceSupplier(() -> beanFactory.getBean(firstNamedBean));
+                defaultDef.setPrimary(true);
+                registry.registerBeanDefinition(defaultName, defaultDef);
+                LOG.info(
+                        "Registered default {} bean definition as reference to: {}",
+                        descriptor.modulePrefix(),
+                        firstNamedBean);
+            }
+
             if (registry.containsBeanDefinition(defaultName)) {
                 for (String alias : descriptor.defaultBeanAliases()) {
                     if (registry.containsBeanDefinition(alias)) {
@@ -134,6 +151,9 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
         for (String name : prefixes.stream().sorted().toList()) {
             if (!registry.containsBeanDefinition(name)) {
                 registerPrimaryBean(registry, name, isFirst);
+                if (isFirst) {
+                    firstNamedBean = name;
+                }
             } else {
                 LOG.debug("Bean '{}' already defined, skipping primary registration", name);
             }
@@ -150,16 +170,6 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
         beanDefinition.setPrimary(isFirst);
         registry.registerBeanDefinition(name, beanDefinition);
         LOG.info("Registered {} bean definition: {}", descriptor.modulePrefix(), name);
-
-        String defaultName = descriptor.defaultBeanName();
-        if (isFirst && !name.equals(defaultName)) {
-            if (registry.containsBeanDefinition(defaultName)) {
-                registry.removeBeanDefinition(defaultName);
-                LOG.info("Replaced conflicting {} default bean definition", descriptor.modulePrefix());
-            }
-            registry.registerAlias(name, defaultName);
-            LOG.info("Registered default {} alias: {} -> {}", descriptor.modulePrefix(), defaultName, name);
-        }
     }
 
     private void registerAuxiliaryBeans(BeanDefinitionRegistry registry, String prefix) {

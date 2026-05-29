@@ -147,19 +147,12 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
         GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
         beanDefinition.setBeanClass(descriptor.primaryBeanClass());
         beanDefinition.setInstanceSupplier(() -> createPrimaryBean(name));
+        //this is necessary (see https://github.com/KaotoIO/forage/issues/363)
+        //if only the named bean was configured, and the route didn't use the name, but expects autowiring to work
+        //without setting the first bean as primary could cause an error. 
         beanDefinition.setPrimary(isFirst);
         registry.registerBeanDefinition(name, beanDefinition);
         LOG.info("Registered {} bean definition: {}", descriptor.modulePrefix(), name);
-
-        String defaultName = descriptor.defaultBeanName();
-        if (isFirst && !name.equals(defaultName)) {
-            if (registry.containsBeanDefinition(defaultName)) {
-                registry.removeBeanDefinition(defaultName);
-                LOG.info("Replaced conflicting {} default bean definition", descriptor.modulePrefix());
-            }
-            registry.registerAlias(name, defaultName);
-            LOG.info("Registered default {} alias: {} -> {}", descriptor.modulePrefix(), defaultName, name);
-        }
     }
 
     private void registerAuxiliaryBeans(BeanDefinitionRegistry registry, String prefix) {

@@ -1,32 +1,23 @@
 package io.kaoto.forage.springboot.jdbc;
 
-import javax.sql.DataSource;
-
-import java.util.List;
-import java.util.ServiceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import io.agroal.api.AgroalDataSource;
 import io.agroal.springframework.boot.AgroalDataSourceAutoConfiguration;
 import io.kaoto.forage.core.annotations.FactoryType;
 import io.kaoto.forage.core.annotations.FactoryVariant;
 import io.kaoto.forage.core.annotations.ForageFactory;
 import io.kaoto.forage.core.jdbc.DataSourceProvider;
 import io.kaoto.forage.jdbc.common.DataSourceFactoryConfig;
-import io.kaoto.forage.jdbc.common.ForageDataSource;
 import io.kaoto.forage.jdbc.common.JdbcModuleDescriptor;
-import io.kaoto.forage.jdbc.common.idempotent.ForageIdRepository;
 import io.kaoto.forage.springboot.common.ForageSpringBootModuleAdapter;
 
 /**
@@ -34,14 +25,13 @@ import io.kaoto.forage.springboot.common.ForageSpringBootModuleAdapter;
  * Automatically creates DataSource beans from JDBC configuration properties,
  * supporting both single and multi-instance (prefixed) configurations.
  *
- * <p>Named/prefixed datasources (e.g., {@code forage.ds1.jdbc.url}) are registered dynamically
+ * <p>Both default (unprefixed) and named/prefixed datasources are registered dynamically
  * by {@link ForageSpringBootModuleAdapter} using the {@link JdbcModuleDescriptor}.
  *
  * <p>This configuration class handles:
  * <ul>
  *   <li>Transaction management setup (when {@code forage.jdbc.transaction.enabled=true})</li>
  *   <li>The {@link ForageSpringBootModuleAdapter} bean for dynamic registration</li>
- *   <li>Fallback single-provider DataSource when no prefixed configurations are found</li>
  * </ul>
  */
 @ForageFactory(
@@ -80,52 +70,16 @@ public class ForageDataSourceAutoConfiguration {
     }
 
     /**
-     * Registers the generic module adapter that discovers prefixed DataSource
-     * configurations and registers them as proper bean definitions using the
+     * Registers the generic module adapter that discovers both default and prefixed
+     * DataSource configurations and registers them as proper bean definitions using the
      * {@link JdbcModuleDescriptor}.
+     *
+     * <p>The adapter handles provider selection based on {@code forage.jdbc.db.kind},
+     * supporting multiple database types (PostgreSQL, MySQL, etc.) on the classpath.
      */
     @Bean
     static ForageSpringBootModuleAdapter<DataSourceFactoryConfig, DataSourceProvider> forageJdbcModuleAdapter(
             Environment environment) {
         return new ForageSpringBootModuleAdapter<>(new JdbcModuleDescriptor(), environment);
-    }
-
-    /**
-     * Fallback DataSource bean created when exactly one DataSourceProvider is on the classpath
-     * and no named/prefixed configurations are found.
-     *
-     * <p>This bean is only registered when:
-     * <ul>
-     *   <li>No "dataSource" bean already exists (e.g., from the module adapter's prefix discovery)</li>
-     *   <li>Exactly one {@link DataSourceProvider} is on the classpath (via {@link SingleDataSourceProviderCondition})</li>
-     * </ul>
-     *
-     * <p>When multiple providers are present (e.g., postgresql + mysql), named/prefixed configurations
-     * must be used instead, and this fallback is skipped to avoid registering a null bean that would
-     * break Spring Boot Actuator's health checks.
-     */
-    @Bean("dataSource")
-    @ConditionalOnMissingBean(name = "dataSource")
-    @Conditional(SingleDataSourceProviderCondition.class)
-    @ConditionalOnProperty(prefix = "forage.jdbc", name = "db.kind")
-    public DataSource forageDefaultDataSource() {
-        List<ServiceLoader.Provider<DataSourceProvider>> providers =
-                ServiceLoader.load(DataSourceProvider.class).stream().toList();
-
-        log.info(
-                "Creating default DataSource using single provider: {}",
-                providers.get(0).type().getName());
-        DataSourceProvider dsProvider = providers.get(0).get();
-        AgroalDataSource dataSource = (AgroalDataSource) dsProvider.create(null);
-
-        ForageIdRepository forageIdRepository = null;
-        if (dsProvider instanceof ForageIdRepository forageIdRepo) {
-            forageIdRepository = forageIdRepo;
-        }
-
-        ForageDataSource forageDataSource = new ForageDataSource(dataSource, forageIdRepository);
-
-        log.info("Registered default DataSource bean");
-        return forageDataSource.dataSource();
     }
 }

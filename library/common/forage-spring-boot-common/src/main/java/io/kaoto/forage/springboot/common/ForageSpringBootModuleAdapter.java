@@ -63,12 +63,12 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
             LOG.info("Discovered Forage {} configuration prefixes: {}", descriptor.modulePrefix(), prefixes);
             registerBeans(registry, prefixes);
         } else if (hasDefaultProperties()) {
-            // Single (non-prefixed) configuration: primary bean is created by the
-            // auto-configuration's @Bean method, but auxiliary beans (aggregation repo,
-            // idempotent repo) still need to be registered here.
-            LOG.info(
-                    "Discovered default Forage {} configuration, registering auxiliary beans",
-                    descriptor.modulePrefix());
+            // Single (non-prefixed) configuration: register both primary and auxiliary beans
+            LOG.info("Discovered default Forage {} configuration, registering beans", descriptor.modulePrefix());
+            String defaultBeanName = descriptor.defaultBeanName();
+            if (!registry.containsBeanDefinition(defaultBeanName)) {
+                registerPrimaryBean(registry, defaultBeanName, true);
+            }
             registerAuxiliaryBeans(registry, null);
         } else {
             LOG.debug("No Forage {} configuration found", descriptor.modulePrefix());
@@ -150,16 +150,6 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
         beanDefinition.setPrimary(isFirst);
         registry.registerBeanDefinition(name, beanDefinition);
         LOG.info("Registered {} bean definition: {}", descriptor.modulePrefix(), name);
-
-        String defaultName = descriptor.defaultBeanName();
-        if (isFirst && !name.equals(defaultName)) {
-            if (registry.containsBeanDefinition(defaultName)) {
-                registry.removeBeanDefinition(defaultName);
-                LOG.info("Replaced conflicting {} default bean definition", descriptor.modulePrefix());
-            }
-            registry.registerAlias(name, defaultName);
-            LOG.info("Registered default {} alias: {} -> {}", descriptor.modulePrefix(), defaultName, name);
-        }
     }
 
     private void registerAuxiliaryBeans(BeanDefinitionRegistry registry, String prefix) {
@@ -188,7 +178,11 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
     }
 
     private Object createPrimaryBean(String name) {
-        C config = descriptor.createConfig(name);
+        // For the default bean (matching defaultBeanName), use null as the config prefix
+        // For named beans, the name IS the prefix
+        String configPrefix = name.equals(descriptor.defaultBeanName()) ? null : name;
+
+        C config = descriptor.createConfig(configPrefix);
         String providerClassName = descriptor.resolveProviderClassName(config);
         List<ServiceLoader.Provider<P>> providers =
                 ServiceLoader.load(descriptor.providerClass()).stream().toList();
@@ -205,7 +199,7 @@ public class ForageSpringBootModuleAdapter<C extends Config, P extends BeanProvi
                     "No " + descriptor.modulePrefix() + " provider found for class: " + providerClassName);
         }
 
-        Object bean = provider.get().create(name);
+        Object bean = provider.get().create(configPrefix);
         if (beanCustomizer != null) {
             bean = beanCustomizer.apply(bean);
         }

@@ -1,8 +1,14 @@
 package io.kaoto.forage.plugin;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.kaoto.forage.core.common.ExportCustomizer;
 import io.kaoto.forage.core.common.RuntimeType;
+import io.kaoto.forage.core.util.config.ConfigStore;
 import io.kaoto.forage.plugin.config.ConfigCommand;
 import io.kaoto.forage.plugin.config.ConfigReadCommand;
 import io.kaoto.forage.plugin.config.ConfigWriteCommand;
@@ -53,8 +60,11 @@ public class ForagePlugin implements Plugin {
     @Override
     public Optional<PluginExporter> getExporter() {
         return Optional.of(new PluginExporter() {
+            private org.apache.camel.dsl.jbang.core.common.RuntimeType capturedRuntime;
+
             @Override
             public Set<String> getDependencies(org.apache.camel.dsl.jbang.core.common.RuntimeType runtimeType) {
+                this.capturedRuntime = runtimeType;
                 // gather dependencies across all (enabled) export customizers for the specific runtime
                 return ExportHelper.getAllCustomizers()
                         .filter(ExportCustomizer::isEnabled)
@@ -70,8 +80,99 @@ public class ForagePlugin implements Plugin {
             }
 
             @Override
-            public void addSourceFiles(Path buildDir, String packageName, Printer printer) {}
+            public void addSourceFiles(Path buildDir, String packageName, Printer printer) {
+                if (capturedRuntime == null || !RuntimeType.quarkus.name().equals(capturedRuntime.name())) {
+                    return;
+                }
+                translateForageProperties(buildDir, printer);
+            }
         });
+    }
+
+    private static void translateForageProperties(Path buildDir, Printer printer) {
+        String configDir = System.getProperty("forage.config.dir");
+        File workingDir = configDir != null ? new File(configDir) : new File(System.getProperty("user.dir"));
+
+        QuarkusPropertyTranslator.TranslationResult result;
+        try {
+            result = QuarkusPropertyTranslator.translate(workingDir);
+        } catch (IOException e) {
+            LOG.warn("Failed to scan forage properties for Quarkus translation: {}", e.getMessage());
+            return;
+        } finally {
+            ConfigStore.getInstance().reload();
+        }
+
+        if (result.quarkusProperties().isEmpty()) {
+            return;
+        }
+
+        Path appPropsPath = buildDir.resolve("src/main/resources/application.properties");
+        if (!Files.exists(appPropsPath)) {
+            LOG.warn("application.properties not found at {} — skipping property translation", appPropsPath);
+            return;
+        }
+
+        try {
+            rewriteApplicationProperties(appPropsPath, result);
+            printer.println(
+                    "Translated " + result.quarkusProperties().size() + " forage properties to Quarkus-native format");
+        } catch (IOException e) {
+            LOG.warn("Failed to rewrite application.properties: {}", e.getMessage());
+        }
+    }
+
+    private static void rewriteApplicationProperties(
+            Path appPropsPath, QuarkusPropertyTranslator.TranslationResult result) throws IOException {
+        List<String> originalLines;
+        try (BufferedReader reader = Files.newBufferedReader(appPropsPath)) {
+            originalLines = reader.lines().toList();
+        }
+
+        Set<String> keysToRemove = result.translatedForageKeys();
+        List<String> outputLines = new ArrayList<>();
+
+        for (String line : originalLines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty() || trimmed.startsWith("#") || trimmed.startsWith("!")) {
+                outputLines.add(line);
+                continue;
+            }
+
+            int eqIdx = trimmed.indexOf('=');
+            int colonIdx = trimmed.indexOf(':');
+            int sepIdx;
+            if (eqIdx < 0 && colonIdx < 0) {
+                outputLines.add(line);
+                continue;
+            } else if (eqIdx < 0) {
+                sepIdx = colonIdx;
+            } else if (colonIdx < 0) {
+                sepIdx = eqIdx;
+            } else {
+                sepIdx = Math.min(eqIdx, colonIdx);
+            }
+
+            String key = trimmed.substring(0, sepIdx).trim();
+            if (!keysToRemove.contains(key)) {
+                outputLines.add(line);
+            }
+        }
+
+        outputLines.add("");
+        outputLines.add("# Quarkus-native properties (translated from forage properties)");
+        for (Map.Entry<String, String> entry : result.quarkusProperties().entrySet()) {
+            if (entry.getValue() != null) {
+                outputLines.add(entry.getKey() + "=" + entry.getValue());
+            }
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(appPropsPath)) {
+            for (String line : outputLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        }
     }
 
     private static final String SHIBBOLETH_REPO = "https://build.shibboleth.net/maven/releases/";

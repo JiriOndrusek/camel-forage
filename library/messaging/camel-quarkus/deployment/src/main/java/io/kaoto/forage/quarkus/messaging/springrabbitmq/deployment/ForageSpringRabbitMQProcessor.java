@@ -49,8 +49,8 @@ public class ForageSpringRabbitMQProcessor {
     }
 
     @BuildStep
-    @Record(value = ExecutionTime.STATIC_INIT)
-    void registerIbmMqConnectionFactory(
+    @Record(value = ExecutionTime.RUNTIME_INIT)
+    void registerRabbitConnectionFactories(
             ForageSpringRabbitMQRecorder recorder, CamelRegistryBuildItem camelRegistryBuildItem) {
         LOG.debug("ForageSpringRabbitMQProcessor.registerRabbitConnectionFactories() called at build time");
         SpringRabbitMQConfig defaultConfig = DESCRIPTOR.createConfig(null);

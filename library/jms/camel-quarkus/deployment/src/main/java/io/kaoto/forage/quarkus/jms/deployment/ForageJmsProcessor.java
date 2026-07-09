@@ -4,7 +4,6 @@ import jakarta.jms.ConnectionFactory;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.camel.quarkus.core.deployment.spi.CamelRuntimeBeanBuildItem;
@@ -45,7 +44,7 @@ public class ForageJmsProcessor {
     }
 
     @BuildStep
-    @Record(value = ExecutionTime.STATIC_INIT)
+    @Record(value = ExecutionTime.RUNTIME_INIT)
     void registerIbmMqConnectionFactory(ForageJmsRecorder recorder, BuildProducer<CamelRuntimeBeanBuildItem> beans) {
 
         ConnectionFactoryConfig defaultConfig = DESCRIPTOR.createConfig(null);
@@ -74,12 +73,10 @@ public class ForageJmsProcessor {
                 // create connection factory
                 RuntimeValue<ConnectionFactory> connectionFactory =
                         recorder.createIbmMQConnectionFactory(entry.getKey());
-                if (connectionFactory != null) {
-                    beans.produce(new CamelRuntimeBeanBuildItem(
-                            Optional.ofNullable(entry.getValue().name()).orElse(entry.getKey()),
-                            ConnectionFactory.class.getName(),
-                            connectionFactory));
-                }
+                beans.produce(new CamelRuntimeBeanBuildItem(
+                        entry.getKey() != null ? entry.getKey() : DESCRIPTOR.defaultBeanName(),
+                        ConnectionFactory.class.getName(),
+                        connectionFactory));
             }
         }
     }

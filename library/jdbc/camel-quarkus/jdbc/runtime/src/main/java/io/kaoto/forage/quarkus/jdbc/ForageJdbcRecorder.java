@@ -34,11 +34,7 @@ public class ForageJdbcRecorder {
         DataSourceFactoryConfig config = new DataSourceFactoryConfig(prefix);
         CamelContext context = camelContext.getValue();
         DataSource agroalDataSource = context.getRegistry().lookupByNameAndType(dsName, DataSource.class);
-        JdbcAggregationRepository ar = createAggregationRepository(config, agroalDataSource);
-        if (ar != null) {
-            return new RuntimeValue<>(ar);
-        }
-        return null;
+        return new RuntimeValue<>(createAggregationRepository(config, agroalDataSource));
     }
 
     public RuntimeValue<JdbcMessageIdRepository> createIdempotentRepository(
@@ -47,24 +43,17 @@ public class ForageJdbcRecorder {
         DataSourceFactoryConfig config = new DataSourceFactoryConfig(prefix);
         CamelContext context = camelContext.getValue();
         DataSource agroalDataSource = context.getRegistry().lookupByNameAndType(dsName, DataSource.class);
-        JdbcMessageIdRepository ir = createIdempotentRepository(config, agroalDataSource);
-        if (ir != null) {
-            return new RuntimeValue<>(ir);
-        }
-        return null;
+        return new RuntimeValue<>(createIdempotentRepository(config, agroalDataSource));
     }
 
     private JdbcAggregationRepository createAggregationRepository(
             DataSourceFactoryConfig dsFactoryConfig, DataSource agroalDataSource) {
-        if (!dsFactoryConfig.transactionEnabled() && dsFactoryConfig.aggregationRepositoryName() != null) {
-            LOG.warn("Transactions have to be enabled in order to create aggregation repositories");
-            return null;
+        if (!dsFactoryConfig.transactionEnabled()) {
+            throw new IllegalStateException(
+                    "Aggregation repository requires transactions. Set forage.jdbc.transaction.enabled=true");
         }
-        if (dsFactoryConfig.aggregationRepositoryName() != null) {
-            return new ForageAggregationRepository(
-                    agroalDataSource, com.arjuna.ats.jta.TransactionManager.transactionManager(), dsFactoryConfig);
-        }
-        return null;
+        return new ForageAggregationRepository(
+                agroalDataSource, com.arjuna.ats.jta.TransactionManager.transactionManager(), dsFactoryConfig);
     }
 
     private JdbcMessageIdRepository createIdempotentRepository(
@@ -83,16 +72,10 @@ public class ForageJdbcRecorder {
                     default -> null;
                 };
 
-        if (config.enableIdempotentRepository()) {
-            if (forageIdRepository == null) {
-                LOG.warn("Unsupported type of db ('%s') for the idempotent repository".formatted(config.dbKind()));
-                return null;
-            }
-            if (config.idempotentRepositoryTableName() != null) {
-                return new ForageJdbcMessageIdRepository(config, agroalDataSource, forageIdRepository);
-            }
+        if (forageIdRepository == null) {
+            throw new IllegalStateException(
+                    "Unsupported database kind '%s' for idempotent repository".formatted(config.dbKind()));
         }
-
-        return null;
+        return new ForageJdbcMessageIdRepository(config, agroalDataSource, forageIdRepository);
     }
 }

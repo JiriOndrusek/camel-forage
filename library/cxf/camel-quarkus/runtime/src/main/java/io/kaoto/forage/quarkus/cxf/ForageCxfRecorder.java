@@ -33,8 +33,7 @@ public class ForageCxfRecorder {
                 ServiceLoaderHelper.findProviderByClassName(providers, providerClass);
 
         if (provider == null) {
-            LOG.warnf("No CXF endpoint provider found for class %s", providerClass);
-            return null;
+            throw new IllegalStateException("No CXF endpoint provider found for class %s".formatted(providerClass));
         }
 
         Object endpoint = provider.get().create(id);
@@ -44,9 +43,9 @@ public class ForageCxfRecorder {
                     .orElse(DEFAULT_CXF_SERVLET_PATH);
             forageCxfEndpoint.setServletContainerCxfPath(cxfServletPath, RuntimeType.quarkus);
         }
-        if (endpoint != null) {
-            return new RuntimeValue<>(endpoint);
+        if (endpoint == null) {
+            throw new IllegalStateException("CXF endpoint provider returned null for id '%s'".formatted(id));
         }
-        return null;
+        return new RuntimeValue<>(endpoint);
     }
 }

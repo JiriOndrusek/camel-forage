@@ -17,9 +17,9 @@ public class ForageJmsRecorder {
     public RuntimeValue<ConnectionFactory> createIbmMQConnectionFactory(String id) {
 
         ConnectionFactory cf = new IbmMqJms().create(id);
-        if (cf != null) {
-            return new RuntimeValue<>(cf);
+        if (cf == null) {
+            throw new IllegalStateException("Failed to create IBM MQ ConnectionFactory for id '%s'".formatted(id));
         }
-        return null;
+        return new RuntimeValue<>(cf);
     }
 }

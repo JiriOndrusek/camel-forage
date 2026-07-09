@@ -38,9 +38,11 @@ public class ForageAgentRecorder {
             agent = AgentCreator.createAgent(config, name, cl);
         }
 
-        if (agent != null) {
-            return new RuntimeValue<>(agent);
+        if (agent == null) {
+            throw new IllegalStateException(
+                    "Failed to create Agent '%s'. Verify the model provider is available and properly configured"
+                            .formatted(name));
         }
-        return null;
+        return new RuntimeValue<>(agent);
     }
 }
